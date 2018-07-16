@@ -16,7 +16,9 @@ from methods.regression_2 import regression_2
 from methods.EnKS import _EnKS
 from save_load import saveTr, loadTr
 from methods.additives import RMSE
-#from data_assimilation import data_assimilation
+from tqdm import tqdm
+
+plt.ion()
 
 #%%
 ### GENERATE SIMULATED DATA (LORENZ-63 MODEL)
@@ -50,7 +52,8 @@ x0 = np.r_[8, 0, 30]
 T_burnin = 5*10**3
 T_train = 10*10**2 # length of the catalog
 T_test = 10*10**2 # length of the testing data
-X_train, Y_train, X_test, Y_test, yo = generate_data(x0,mx,h,Q_true,R_true,dt_int,dt_model,var_obs, T_burnin, T_train, T_test)
+X_train, Y_train, X_test, Y_test, yo = generate_data(x0,mx,h,Q_true,R_true,
+  dt_int,dt_model,var_obs, T_burnin, T_train, T_test)
 X_train.time = np.arange(0,T_train)
 Y_train.time= X_train.time[1:]
 #np.random.seed(0);# random number generator
@@ -59,7 +62,8 @@ indX=np.random.choice(np.arange(0,N), int(Ngap), replace=False);
 ind_gap_taken = divmod(indX ,len(Y_train.time));
 Y_train.values[ind_gap_taken]=np.nan;
 
-X_train0, Y_train0, X_test0, Y_test0, yo0 = generate_data(X_train.values[:,-1],mx,h,Q_true,R_true,dt_int,dt_model,var_obs, T_burnin, T_train, T_test)
+X_train0, Y_train0, X_test0, Y_test0, yo0 = generate_data(X_train.values[:,-1],
+   mx,h,Q_true,R_true,dt_int,dt_model,var_obs, T_burnin, T_train, T_test)
 X_train0.time = np.arange(0,T_train)
 Y_train0.time= X_train0.time[1:]
 
@@ -144,12 +148,6 @@ k_m, k_Q = k_choice(LLR, LLR.data.ana, LLR.data.suc, LLR.data.time)
 LLR.k_m = k_m;
 LLR.k_Q = k_Q;  # LLR.lag_x = 0
 
-# xf, mean_xf, Q_xf, M_xf = m_LLR(X_test.values[:,:-1],1,np.ones([1]),LLR)
-# xft, mean_xft,Q_xft, M_xft =  m(X_test.values[:,:-1],1,np.ones([1]),Q_true)
-# np.sqrt(np.mean((mean_xft-X_test.values[:,1:])**2))
-# np.sqrt(np.mean((mean_xf-X_test.values[:,1:])**2))
-
-
 LLR.lag_x = 0
 xf, mean_xff, Q_xf, M_xf = m_LLR(X_test.values[:, :-1], 1, np.ones([1]), LLR)
 time = np.arange(0, T_test - 1)
@@ -158,7 +156,6 @@ xb = X_test.values[..., 0]
 N_iter = 100
 Nf = 10  # number of particles
 Ns = 5  # number of realizations
-from tqdm import tqdm
 
 X_conditioning = np.zeros([dx, T_test]);
 err_smo = 0;
@@ -187,7 +184,6 @@ gam1 = np.ones(N_iter, dtype=int)  # for SEM (stochastic EM)
 gam2 = np.ones(N_iter, dtype=int)
 for k in range(50, N_iter):
     gam2[k] = k ** (-0.7)  # for SAEM (stochastic approximation EM)
-# gam1 = gam2
 
 rep = 1  # number of repetitions for each algorithm
 X_conditioning = np.zeros([dx, T_train + 1])  # the conditioning trajectory (only for CPF-BS-SEM and CPF-AS-SEM)

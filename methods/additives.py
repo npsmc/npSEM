@@ -9,6 +9,8 @@ __maintainer__ = "Pierre Tandeo"
 __email__ = "pierre.tandeo@telecom-bretagne.eu"
 
 import numpy as np
+import sys
+from numba import jit
 
 def CP95(Xs,X):
     dx, T = X.shape
@@ -24,15 +26,15 @@ def CP95(Xs,X):
 def RMSE(error):
   return np.sqrt(np.mean(error**2))
 
+@jit
 def sampling_discrete(W, m):  ### Discrete sampling, ADDED by TRANG ###
     "Returns m indices given N weights"
     cumprob = np.cumsum(W)
-    n = np.size(cumprob)
+    n = W.size
     R = np.random.rand(m)
-    ind = np.zeros(m)
+    ind = np.zeros(m, dtype = int)
     for i in range(n):
-        ind += R> cumprob[i]
-    ind = np.array(ind, dtype = int)    
+        ind += R > cumprob[i]
     return ind
 
 
