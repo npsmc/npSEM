@@ -107,7 +107,7 @@ venv.bak/
 
 .idea/
 methods/__pycache__/
-models/.ipynb_checkpoints/
+.ipynb_checkpoints/
 models/__pycache__/
 models/l63_for.cpython-37m-darwin.so
 models/l63_for.cpython-37m-darwin.so.dSYM/
@@ -116,7 +116,5 @@ models/l96.mod
 models/l96_for.cpython-37m-darwin.so
 models/l96_for.cpython-37m-darwin.so.dSYM/
 models/l96_for.o
-
 models/l63_for.cpython-36m-darwin.so.dSYM/Contents/Info.plist
-
 models/l96_for.cpython-36m-darwin.so.dSYM/Contents/Info.plist
