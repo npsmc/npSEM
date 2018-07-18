@@ -4,7 +4,6 @@ import numpy as np
 
 import models.l63f as mdl_l63
 from methods.CPF_BS_smoothing import _CPF
-from methods.LLR_forecasting_CV import m_LLR
 from methods.generate_data import generate_data
 from methods.k_choice import LLRClass, Data, Est
 from methods.model_forecasting import m_true

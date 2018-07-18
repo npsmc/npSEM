@@ -9,8 +9,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
-from methods.LLR_forecasting_CV import m_LLR
-
 
 class Est:
     """
@@ -26,7 +24,6 @@ class Est:
         self.form = form
         self.base = base
         self.decision = decision
-
 
 
 class Data:
@@ -52,6 +49,7 @@ class LLRClass:
     estK: set 'same' if k_m = k_Q chosen, otherwise, set 'different'
     kernel: set 'rectangular' or 'tricube'
     """
+
     def __init__(self, data, data_prev, num_ana, Q):
         self.data = data
         self.data_prev = data_prev
@@ -88,7 +86,7 @@ class LLRClass:
                 loglik = 0
                 err = 0
                 for t in range(T):
-                    _, mean_xf, Q_xf, _ = m_LLR(x[..., t], time[t], np.ones([1]), self)
+                    _, mean_xf, Q_xf, _ = self.m_LLR(x[..., t], time[t], np.ones([1]))
                     innov = y[..., t] - mean_xf
                     err += np.mean(innov ** 2)
 
@@ -175,3 +173,122 @@ class LLRClass:
         #        plt.rcParams['figure.figsize'] = (5, 8)
         # Add a color bar which maps values to colors.
 
+    def m_LLR(self, x, tx, ind_x):
+
+        """ Apply the analog method on data of historical data to generate forecasts. """
+
+        # initializations
+        dx, N = x.shape
+        xf = np.zeros([dx, N])
+        mean_xf = np.zeros([dx, N])
+        Q_xf = np.zeros([dx, dx, N])
+        M_xf = np.zeros([dx + 1, dx, N])
+
+        lag_x = self.lag_x
+        lag_Dx = self.lag_Dx(self.data.ana)
+        if len(self.data.ana.shape) == 1:
+            dimx = 1
+            dimD = 1  # lenC = LLR.data.ana.shape
+        elif len(self.data.ana.shape) == 2:
+            dimD = 1
+            dimx, _ = self.data.ana.shape
+        else:
+            dimx, dimD, _ = self.data.ana.shape
+        try:
+            indCV = (np.abs((tx - self.data.time)) % self.time_period <= lag_Dx) \
+                    & (np.abs(tx - self.data.time) >= lag_x)
+        except:
+            indCV = (np.abs(tx - self.data.time) >= lag_x)
+
+        lenD = np.shape(self.data.ana[..., np.squeeze(indCV)])[-1]
+        analogs_CV = np.reshape(self.data.ana[..., np.squeeze(indCV)], (dimx, lenD * dimD))
+        successors_CV = np.reshape(self.data.suc[..., np.squeeze(indCV)], (dimx, lenD * dimD))
+
+        if self.gam != 1:
+            if len(self.data_prev.ana.shape) == 1:
+                dimx_prev = 1
+                dimD_prev = 1  # lenC = LLR.data.ana.shape
+            elif len(self.data_prev.ana.shape) == 2:
+                dimD_prev = 1
+                dimx_prev, _ = self.data_prev.ana.shape
+            else:
+                dimx_prev, dimD_prev, _ = self.data_prev.ana.shape
+            indCV_prev = (indCV) & (self.data_prev.time == self.data_prev.time)
+            lenD_prev = np.shape(self.data_prev.ana[..., indCV_prev])[-1]
+
+            analogs_CV_prev = np.reshape(self.data_prev.ana[..., indCV_prev],
+                                         (dimx_prev, lenD_prev * dimD_prev))
+            successors_CV_prev = np.reshape(self.data_prev.suc[..., indCV_prev],
+                                            (dimx_prev, lenD_prev * dimD_prev))
+            analogs = np.concatenate((analogs_CV, analogs_CV_prev), axis=1)
+            successors = np.concatenate((successors_CV, successors_CV_prev), axis=1)
+        else:
+            analogs = analogs_CV
+            successors = successors_CV
+
+        # LLR.k_m = np.size(analogs,1)/np.size(analogs_CV,1)*LLR.LLR.k_m;
+        # %% LLR estimating
+        # #[ind_knn,dist_knn]=knnsearch(analogs,x,'k',LLR.k_m);
+        self.k_m = min(self.k_m, np.size(analogs, 1))
+        self.k_Q = min(self.k_m, self.k_Q)
+        weights = np.ones((N, self.k_m)) / self.k_m  # rectangular kernel for default
+
+        for i in range(N):
+            # search k-nearest neighbors
+            X_i = np.tile(x[:, i], (np.size(analogs, 1), 1)).T
+            dist = np.sqrt(np.sum((X_i - analogs) ** 2, 0))
+            ind_dist = np.argsort(dist)
+            ind_knn = ind_dist[:self.k_m]
+
+            if self.kernel == 'tricube':
+                h_m = dist[ind_knn[-1]]  # chosen bandwidth to hold the constrain dist/h_m <= 1
+                weights[i, :] = (1 - (dist[ind_knn] / h_m) ** 3) ** 3
+            # identify which set analogs belong to (if using SAEM)
+            ind_prev = np.where(ind_knn > np.size(analogs_CV, 1))
+            ind = np.setdiff1d(np.arange(0, self.k_m), ind_prev)
+            if len(ind_prev) > 0:
+                weights[i, ind_prev] = (1 - self.gam) * weights[i, ind_prev]
+                weights[i, ind] = self.gam * weights[i, ind]
+
+            wei = weights[i, :] / np.sum(weights[i, :])
+            ## LLR coefficients
+            W = np.sqrt(np.diag(wei))
+            Aw = np.dot(np.insert(analogs[:, ind_knn], 0, 1, 0), W)
+            Bw = np.dot(successors[:, ind_knn], W)
+            M = np.linalg.lstsq(Aw.T, Bw.T)[0]
+            # weighted mean and covariance
+            mean_xf[:, i] = np.dot(np.insert(x[:, i], 0, 1, 0), M)
+            M_xf[:, :, i] = M
+
+            if (self.Q.type == 'adaptive'):
+                res = successors[:, ind_knn] \
+                      - np.dot(np.insert(analogs[:, ind_knn], 0, 1, 0).T, M).T
+
+                if self.kernel == 'tricube':
+                    h_Q = dist[ind_knn[self.k_Q - 1]]  # chosen bandwidth to hold the constrain dist/h_m <= 1
+                    wei_Q = (1 - (dist[ind_knn[:self.k_Q]] / h_Q) ** 3) ** 3
+                else:
+                    wei_Q = wei[:self.k_Q]
+                wei_Q = wei_Q / np.sum(wei_Q)
+
+                cov_xf = np.cov(res[:, :self.k_Q],
+                                aweights=wei_Q)  # ((res[:,:LLR.k_Q].dot(np.diag(wei_Q))).dot(res[:,:LLR.k_Q].T))/(1-sum(wei_Q**2));
+                if (self.Q.form == 'full'):
+                    Q_xf[:, :, i] = cov_xf
+                elif (self.Q.form == 'diag'):
+                    Q_xf[:, :, i] = np.diag(np.diag(cov_xf))
+                else:
+                    Q_xf[:, :, i] = np.trace(cov_xf) * self.Q.base / dx
+
+            else:
+                Q_xf[:, :, i] = self.Q.value
+
+        # %% LLR sampling
+        for i in range(N):
+            if len(ind_x) > 1:
+                xf[:, i] = np.random.multivariate_normal(mean_xf[:, ind_x[i]],
+                                                         Q_xf[:, :, ind_x[i]])
+            else:
+                xf[:, i] = np.random.multivariate_normal(mean_xf[:, i], Q_xf[:, :, i])
+
+        return xf, mean_xf, Q_xf, M_xf
