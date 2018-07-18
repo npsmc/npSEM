@@ -1,4 +1,4 @@
-import time as t 
+import time as t
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -33,17 +33,29 @@ dt_model = 8
 var_obs = np.array([0, 1, 2])
 dy = len(var_obs)
 H = np.eye(dx)  # H = H[(0,2),:]
-h = lambda x: H.dot(x)
-jacH = lambda x: H
+
+
+def h(x): return H.dot(x)
+
+
+def jacH(x): return H
+
+
 sigma = 10.0
 rho = 28.0
 beta = 8.0 / 3
 fmdl = mdl_l63.M(sigma=sigma, rho=rho, beta=beta, dtcy=dt_int)
-mx = lambda x: fmdl.integ(x)  # fortran version (fast)
-jac_mx = lambda x: l63_jac(x, dt_int * dt_model, sigma, rho, beta)  # python version (slow)
+
+
+def mx(x): return fmdl.integ(x)  # fortran version (fast)
+
+
+def jac_mx(x): return l63_jac(x, dt_int * dt_model,
+                              sigma, rho, beta)  # python version (slow)
+
 
 # Setting covariances
-sig2_Q = 1;
+sig2_Q = 1
 sig2_R = 2  # parameters
 Q_true = np.eye(dx) * sig2_Q
 R_true = np.eye(dx) * sig2_R
@@ -81,10 +93,12 @@ data_init = np.r_['0,2,0', Y_train.values[..., :-1], Y_train.values[..., 1:]]
 ind_nogap = np.where(~np.isnan(np.sum(data_init, 0)))[0]
 num_ana = 200
 
-estQ =  Est(value=Q_true,type='adaptive',form='constant',base=np.eye(dx),decision=True)
-estR =  Est(value=R_true,type='adaptive',form='constant',base=np.eye(dx),decision=True)
-estX0 = Est(decision = False)
-estD =  Est(decision = True)
+estQ = Est(value=Q_true, type='adaptive', form='constant',
+           base=np.eye(dx), decision=True)
+estR = Est(value=R_true, type='adaptive', form='constant',
+           base=np.eye(dx), decision=True)
+estX0 = Est(decision=False)
+estD = Est(decision=True)
 
 data = Data(dx, data_init, ind_nogap, Y_train)
 data_prev = Data(dx, data_init, ind_nogap, Y_train)
@@ -98,7 +112,7 @@ LLR = LLRClass(data, data_prev, num_ana, estQ)
 LLR.k_choice()
 
 plt.rcParams['figure.figsize'] = (8, 5)
-plt.figure(3)
+plt.figure(1)
 fig, ax1 = plt.subplots()
 ax1.plot(LLR.nN_m, LLR.E, color='b')
 ax1.set_xlabel('number of $m$-analogs $(k_m)$')
@@ -107,14 +121,16 @@ plt.show()
 
 
 # Forecast with LLR
-xf, mean_xf, Q_xf, M_xf = LLR.m_LLR(X_test.values[:,:-1], 1, np.ones([1]))
+xf, mean_xf, Q_xf, M_xf = LLR.m_LLR(X_test.values[:, :-1], 1, np.ones([1]))
 
 # %% TEST FOR CONDITIONAL PARTICLE FILTERING (_CPF function)
 # Here I use the true model  (m) to forecast instead of LLR (m_hat).
 
-m = lambda x, pos_x, ind_x: m_true(x, pos_x, ind_x, Q_true, 
-                                   mx, jac_mx, dt_model)
+
+def m(x, pos_x, ind_x): return m_true(x, pos_x, ind_x, Q_true,
+                                      mx, jac_mx, dt_model)
 # m_hat = lambda  x,pos_x,ind_x: m_LLR(x,pos_x,ind_x,LLR)
+
 
 time = np.arange(T_test - 1)  # [np.newaxis].T
 B = Q_true
@@ -129,5 +145,5 @@ Xa, Xf, mean_Xf, cov_Xf, Wa, ind, loglik = _CPF(Y_test.values,
                                                 X_conditioning,
                                                 m, H, Q_true, R_true,
                                                 xb, B, Nf, dx,
-                                                time) 
+                                                time)
 print(f"Elapsed time : {t.time()-begin}")

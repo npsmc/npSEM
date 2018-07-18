@@ -23,7 +23,7 @@ def _CPF(y, X_cond, m, H, Q, R, xb, B, Nf, dx, time):
     mean_Xf = np.zeros([dx, Nf, T+1])
     cov_Xf = np.zeros([dx, dx, Nf, T+1])
     Wa = np.zeros([Nf, T+1])
-    Wa[:, 0] = 1/Nf*np.ones(Nf)
+    Wa[:, 0] = 1/Nf
     loglik = 0
     # Initialize ensemble
     for i in range(Nf):
@@ -33,6 +33,7 @@ def _CPF(y, X_cond, m, H, Q, R, xb, B, Nf, dx, time):
 
     if np.all(X_cond) != set():
         Xa[:, -1, 0] = X_cond[:, 0]
+
     for t in range(T):
         # Resampling
         ind = resampling_sys(Wa[:, t])
