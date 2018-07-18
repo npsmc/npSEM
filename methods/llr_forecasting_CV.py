@@ -77,8 +77,7 @@ class LLRClass:
 
             print(" First case")
 
-            L = []
-            E = []
+            self.L, self.E = [], []
 
             for i in range(len(self.nN_m)):
                 self.k_m = self.nN_m[i]
@@ -86,29 +85,24 @@ class LLRClass:
                 loglik = 0
                 err = 0
                 for t in range(T):
-                    _, mean_xf, Q_xf, _ = self.m_LLR(x[..., t], time[t], np.ones([1]))
+                    _, mean_xf, Q_xf, _ = self.m_LLR(
+                        x[..., t], time[t], np.ones([1]))
                     innov = y[..., t] - mean_xf
                     err += np.mean(innov ** 2)
 
-                L.append(loglik)
-                E.append(np.sqrt(err / T))
+                self.L.append(loglik)
+                self.E.append(np.sqrt(err / T))
 
-            ind_max = np.argmin(E)
+            ind_max = np.argmin(self.E)
             k_m = self.nN_m[ind_max]
             k_Q = k_m
-            plt.rcParams['figure.figsize'] = (8, 5)
-            plt.figure(3)
-            fig, ax1 = plt.subplots()
-            ax1.plot(self.nN_m, E, color='b')
-            ax1.set_xlabel('number of $m$-analogs $(k_m)$')
-            ax1.set_ylabel('RMSE')
-            plt.show()
+
         else:
             X, Y = np.meshgrid(self.nN_m, self.nN_Q)
             Q = np.zeros((dx, dx, T))
             len_ana = len(self.nN_m) * len(self.nN_Q)
-            L = np.zeros(len_ana)
-            E = np.zeros(len_ana)
+            self.L = np.zeros(len_ana)
+            self.E = np.zeros(len_ana)
 
             for i in range(len_ana):
                 self.k_m = np.squeeze(X.T.reshape(len_ana)[i])
@@ -122,39 +116,25 @@ class LLRClass:
                 loglik = 0
                 err = 0
                 for t in range(T):
-                    _, mean_xf, Q_xf, _ = m_LLR(x[..., t], time[t], np.ones([1]), self)
+                    _, mean_xf, Q_xf, _ = self.m_LLR(
+                        x[..., t], time[t], np.ones([1]))
                     innov = y[..., t] - mean_xf
-                    const = -.5 * np.log(2 * np.pi * np.linalg.det(Q_xf.transpose(-1, 0, 1)))
+                    const = -.5 * \
+                        np.log(2 * np.pi * np.linalg.det(Q_xf.transpose(-1, 0, 1)))
                     logwei = -.5 * np.sum(
                         innov.T.dot(np.linalg.inv(Q_xf.transpose(-1, 0, 1)))[:N, :N, :] * innov.T, 1)
                     loglik += np.sum(const + logwei) / N
                     err += np.sqrt(np.mean(innov ** 2))
 
-                L[i] = loglik
-                E[i] = np.sqrt(err / T)
-            ind_max = np.argmax(L)
+                self.L[i] = loglik
+                self.E[i] = np.sqrt(err / T)
+            ind_max = np.argmax(self.L)
             self.k_m = np.squeeze(X.T.reshape(len_ana)[ind_max])
             self.k_Q = np.squeeze(Y.T.reshape(len_ana)[ind_max])
-            print(L)
-            print(E)
-            LL = (L.reshape((len(self.nN_m), len(self.nN_Q)))).T
-            plt.rcParams['figure.figsize'] = (9, 9)
-            fig = plt.figure(3)
+            print(" \t L = {} ".format(self.L))
+            print(" \t E = {} ".format(self.E))
 
-            ax = fig.gca(projection='3d')
-            surf = ax.plot_surface(X, Y, LL, cmap='Greys', alpha=0.75,
-                                   linewidth=0.25, edgecolor='k', antialiased=False)
-            #        plt.plot(k_m,k_Q,max(L),'k*', markersize = 6)
-            ax.zaxis.set_major_locator(LinearLocator(10))
-            ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
-            fig.colorbar(surf, shrink=0.5, aspect=5)
-            ax.set_xlabel('$k_m$')  # number of $m$-analogs
-            ax.set_ylabel('$k_Q$')  # number of $Q$-analogs
-            ax.set_zlabel('log likelihood')
-            plt.grid()
-            plt.show()
-
-            print('Q ={}'.format(np.mean(Q, 2)))
+            print(" \t Q = {}".format(np.mean(Q, 2)))
         #        fig = plt.figure(4)
         #        plt.rcParams['figure.figsize'] = (5, 8)
         #        ax = fig.gca(projection='3d')
@@ -173,8 +153,24 @@ class LLRClass:
         #        plt.rcParams['figure.figsize'] = (5, 8)
         # Add a color bar which maps values to colors.
 
-    def m_LLR(self, x, tx, ind_x):
+            LL = (self.L.reshape((len(self.nN_m), len(self.nN_Q)))).T
+            plt.rcParams['figure.figsize'] = (9, 9)
+            fig = plt.figure(3)
 
+            ax = fig.gca(projection='3d')
+            surf = ax.plot_surface(X, Y, LL, cmap='Greys', alpha=0.75,
+                                   linewidth=0.25, edgecolor='k', antialiased=False)
+            #        plt.plot(k_m,k_Q,max(L),'k*', markersize = 6)
+            ax.zaxis.set_major_locator(LinearLocator(10))
+            ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+            fig.colorbar(surf, shrink=0.5, aspect=5)
+            ax.set_xlabel('$k_m$')  # number of $m$-analogs
+            ax.set_ylabel('$k_Q$')  # number of $Q$-analogs
+            ax.set_zlabel('log likelihood')
+            plt.grid()
+            plt.show()
+
+    def m_LLR(self, x, tx, ind_x):
         """ Apply the analog method on data of historical data to generate forecasts. """
 
         # initializations
@@ -191,18 +187,20 @@ class LLRClass:
             dimD = 1  # lenC = LLR.data.ana.shape
         elif len(self.data.ana.shape) == 2:
             dimD = 1
-            dimx, _ = self.data.ana.shape
+            dimx = self.data.ana.shape[0]
         else:
-            dimx, dimD, _ = self.data.ana.shape
+            dimx, dimD = self.data.ana.shape[:2]
         try:
             indCV = (np.abs((tx - self.data.time)) % self.time_period <= lag_Dx) \
-                    & (np.abs(tx - self.data.time) >= lag_x)
+                & (np.abs(tx - self.data.time) >= lag_x)
         except:
             indCV = (np.abs(tx - self.data.time) >= lag_x)
 
         lenD = np.shape(self.data.ana[..., np.squeeze(indCV)])[-1]
-        analogs_CV = np.reshape(self.data.ana[..., np.squeeze(indCV)], (dimx, lenD * dimD))
-        successors_CV = np.reshape(self.data.suc[..., np.squeeze(indCV)], (dimx, lenD * dimD))
+        analogs_CV = np.reshape(
+            self.data.ana[..., np.squeeze(indCV)], (dimx, lenD * dimD))
+        successors_CV = np.reshape(
+            self.data.suc[..., np.squeeze(indCV)], (dimx, lenD * dimD))
 
         if self.gam != 1:
             if len(self.data_prev.ana.shape) == 1:
@@ -221,7 +219,8 @@ class LLRClass:
             successors_CV_prev = np.reshape(self.data_prev.suc[..., indCV_prev],
                                             (dimx_prev, lenD_prev * dimD_prev))
             analogs = np.concatenate((analogs_CV, analogs_CV_prev), axis=1)
-            successors = np.concatenate((successors_CV, successors_CV_prev), axis=1)
+            successors = np.concatenate(
+                (successors_CV, successors_CV_prev), axis=1)
         else:
             analogs = analogs_CV
             successors = successors_CV
@@ -231,7 +230,8 @@ class LLRClass:
         # #[ind_knn,dist_knn]=knnsearch(analogs,x,'k',LLR.k_m);
         self.k_m = min(self.k_m, np.size(analogs, 1))
         self.k_Q = min(self.k_m, self.k_Q)
-        weights = np.ones((N, self.k_m)) / self.k_m  # rectangular kernel for default
+        # rectangular kernel for default
+        weights = np.ones((N, self.k_m)) / self.k_m
 
         for i in range(N):
             # search k-nearest neighbors
@@ -241,7 +241,8 @@ class LLRClass:
             ind_knn = ind_dist[:self.k_m]
 
             if self.kernel == 'tricube':
-                h_m = dist[ind_knn[-1]]  # chosen bandwidth to hold the constrain dist/h_m <= 1
+                # chosen bandwidth to hold the constrain dist/h_m <= 1
+                h_m = dist[ind_knn[-1]]
                 weights[i, :] = (1 - (dist[ind_knn] / h_m) ** 3) ** 3
             # identify which set analogs belong to (if using SAEM)
             ind_prev = np.where(ind_knn > np.size(analogs_CV, 1))
@@ -251,7 +252,7 @@ class LLRClass:
                 weights[i, ind] = self.gam * weights[i, ind]
 
             wei = weights[i, :] / np.sum(weights[i, :])
-            ## LLR coefficients
+            # LLR coefficients
             W = np.sqrt(np.diag(wei))
             Aw = np.dot(np.insert(analogs[:, ind_knn], 0, 1, 0), W)
             Bw = np.dot(successors[:, ind_knn], W)
@@ -262,10 +263,11 @@ class LLRClass:
 
             if (self.Q.type == 'adaptive'):
                 res = successors[:, ind_knn] \
-                      - np.dot(np.insert(analogs[:, ind_knn], 0, 1, 0).T, M).T
+                    - np.dot(np.insert(analogs[:, ind_knn], 0, 1, 0).T, M).T
 
                 if self.kernel == 'tricube':
-                    h_Q = dist[ind_knn[self.k_Q - 1]]  # chosen bandwidth to hold the constrain dist/h_m <= 1
+                    # chosen bandwidth to hold the constrain dist/h_m <= 1
+                    h_Q = dist[ind_knn[self.k_Q - 1]]
                     wei_Q = (1 - (dist[ind_knn[:self.k_Q]] / h_Q) ** 3) ** 3
                 else:
                     wei_Q = wei[:self.k_Q]
@@ -289,6 +291,7 @@ class LLRClass:
                 xf[:, i] = np.random.multivariate_normal(mean_xf[:, ind_x[i]],
                                                          Q_xf[:, :, ind_x[i]])
             else:
-                xf[:, i] = np.random.multivariate_normal(mean_xf[:, i], Q_xf[:, :, i])
+                xf[:, i] = np.random.multivariate_normal(
+                    mean_xf[:, i], Q_xf[:, :, i])
 
         return xf, mean_xf, Q_xf, M_xf

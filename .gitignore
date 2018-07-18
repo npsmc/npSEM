@@ -118,3 +118,4 @@ models/l96_for.cpython-37m-darwin.so.dSYM/
 models/l96_for.o
 models/l63_for.cpython-36m-darwin.so.dSYM/Contents/Info.plist
 models/l96_for.cpython-36m-darwin.so.dSYM/Contents/Info.plist
+*.swp

@@ -1,15 +1,16 @@
-from time import time
+import time as t 
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 import models.l63f as mdl_l63
 from methods.CPF_BS_smoothing import _CPF
 from methods.generate_data import generate_data
-from methods.k_choice import LLRClass, Data, Est
+from methods.llr_forecasting_CV import LLRClass, Data, Est
 from methods.model_forecasting import m_true
 from models.L63 import l63_jac
 
-begin = time()
+begin = t.time()
 """
  GENERATE SIMULATED DATA (LORENZ-63 MODEL)
  
@@ -96,15 +97,23 @@ LLR = LLRClass(data, data_prev, num_ana, estQ)
 
 LLR.k_choice()
 
-print(f"Elapsed time : {time()-begin}")
+plt.rcParams['figure.figsize'] = (8, 5)
+plt.figure(3)
+fig, ax1 = plt.subplots()
+ax1.plot(LLR.nN_m, LLR.E, color='b')
+ax1.set_xlabel('number of $m$-analogs $(k_m)$')
+ax1.set_ylabel('RMSE')
+plt.show()
+
 
 # Forecast with LLR
-xf, mean_xf, Q_xf, M_xf = m_LLR(X_test.values[:, :-1], 1, np.ones([1]), LLR)  # Need to be optimised
+xf, mean_xf, Q_xf, M_xf = LLR.m_LLR(X_test.values[:,:-1], 1, np.ones([1]))
 
 # %% TEST FOR CONDITIONAL PARTICLE FILTERING (_CPF function)
 # Here I use the true model  (m) to forecast instead of LLR (m_hat).
 
-m = lambda x, pos_x, ind_x: m_true(x, pos_x, ind_x, Q_true, mx, jac_mx, dt_model)
+m = lambda x, pos_x, ind_x: m_true(x, pos_x, ind_x, Q_true, 
+                                   mx, jac_mx, dt_model)
 # m_hat = lambda  x,pos_x,ind_x: m_LLR(x,pos_x,ind_x,LLR)
 
 time = np.arange(T_test - 1)  # [np.newaxis].T
@@ -120,4 +129,5 @@ Xa, Xf, mean_Xf, cov_Xf, Wa, ind, loglik = _CPF(Y_test.values,
                                                 X_conditioning,
                                                 m, H, Q_true, R_true,
                                                 xb, B, Nf, dx,
-                                                time)  # Need to be optimised
+                                                time) 
+print(f"Elapsed time : {t.time()-begin}")
