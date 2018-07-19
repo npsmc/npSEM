@@ -86,8 +86,8 @@ class LLRClass:
                 err = 0
                 for t in range(T):
                     _, mean_xf, Q_xf, _ = self.m_LLR(
-                        x[..., t], time[t], np.ones([1]))
-                    innov = y[..., t] - mean_xf
+                        x[:,:, t], time[t], np.ones([1]))
+                    innov = y[:,:, t] - mean_xf
                     err += np.mean(innov ** 2)
 
                 self.L.append(loglik)
@@ -117,8 +117,8 @@ class LLRClass:
                 err = 0
                 for t in range(T):
                     _, mean_xf, Q_xf, _ = self.m_LLR(
-                        x[..., t], time[t], np.ones([1]))
-                    innov = y[..., t] - mean_xf
+                        x[:,:, t], time[t], np.ones([1]))
+                    innov = y[:,:, t] - mean_xf
                     const = -.5 * \
                         np.log(2 * np.pi * np.linalg.det(Q_xf.transpose(-1, 0, 1)))
                     logwei = -.5 * np.sum(
@@ -198,9 +198,9 @@ class LLRClass:
 
         lenD = np.shape(self.data.ana[..., np.squeeze(indCV)])[-1]
         analogs_CV = np.reshape(
-            self.data.ana[..., np.squeeze(indCV)], (dimx, lenD * dimD))
+            self.data.ana[:,:, np.squeeze(indCV)], (dimx, lenD * dimD))
         successors_CV = np.reshape(
-            self.data.suc[..., np.squeeze(indCV)], (dimx, lenD * dimD))
+            self.data.suc[:,:, np.squeeze(indCV)], (dimx, lenD * dimD))
 
         if self.gam != 1:
             if len(self.data_prev.ana.shape) == 1:
@@ -212,11 +212,11 @@ class LLRClass:
             else:
                 dimx_prev, dimD_prev, _ = self.data_prev.ana.shape
             indCV_prev = (indCV) & (self.data_prev.time == self.data_prev.time)
-            lenD_prev = np.shape(self.data_prev.ana[..., indCV_prev])[-1]
+            lenD_prev = np.shape(self.data_prev.ana[:,:, indCV_prev])[-1]
 
-            analogs_CV_prev = np.reshape(self.data_prev.ana[..., indCV_prev],
+            analogs_CV_prev = np.reshape(self.data_prev.ana[:,:, indCV_prev],
                                          (dimx_prev, lenD_prev * dimD_prev))
-            successors_CV_prev = np.reshape(self.data_prev.suc[..., indCV_prev],
+            successors_CV_prev = np.reshape(self.data_prev.suc[:,:, indCV_prev],
                                             (dimx_prev, lenD_prev * dimD_prev))
             analogs = np.concatenate((analogs_CV, analogs_CV_prev), axis=1)
             successors = np.concatenate(
