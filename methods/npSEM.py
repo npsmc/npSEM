@@ -41,7 +41,7 @@ def maximize(Xs,Xf_mean, y, H, estQ, estR):
     if estR.type == 'fixed':
         var_obs = np.where(~np.isnan(y[:,0]))[0]; dy = len(var_obs)
         SigR = np.zeros([dy, Ns, T-1]); R = np.zeros([dx,dx]);
-        for t in range(T-1):
+        for t in range(T-1): # valerie : est-ce que la boucle est utile? 
             if dy>0:
                 nobs += 1
                 SigR[:,:,t] = np.tile(y[var_obs,t], (Ns, 1)).T - H[var_obs,:].dot(Xs[...,t+1])
