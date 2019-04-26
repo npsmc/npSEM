@@ -98,6 +98,7 @@ class LLRClass:
             k_Q = k_m
 
         else:
+            
             X, Y = np.meshgrid(self.nN_m, self.nN_Q)
             Q = np.zeros((dx, dx, T))
             len_ana = len(self.nN_m) * len(self.nN_Q)
