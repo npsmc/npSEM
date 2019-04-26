@@ -83,10 +83,10 @@ def regloc_ana_miss(X,Y,Xn,k,kernel):
         Xr=X[np.ix_(ind,indX2)];
         Yr=Y[ind,:];
         
-        #r�gression li�naire locale
-        dist= np.sum((Xr-np.tile(X2,(np.size(Xr,0),1)))**2,1); 
+        #regression lienaire locale
+        dist= np.sum((Xr-np.tile(X2,(np.size(Xr,0),1)))**2,1);  # compute euclidean distance
         #distance
-        ind_sort=np.argsort(dist);
+        ind_sort=np.argsort(dist); # sort with quick ort algorithm? 
         k_m = min(k,len(ind_sort))
         ind=ind_sort[np.arange(0,k_m)];
         #betai=(X'*(repmat(W,1,size(X,2)).*X))\(X'*(repmat(W,1,size(Y,2)).*Y));
