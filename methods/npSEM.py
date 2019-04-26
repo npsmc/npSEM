@@ -25,7 +25,7 @@ def maximize(Xs,Xf_mean, y, H, estQ, estR):
   
     if estQ.type == 'fixed':
         SigQ = np.zeros((dx, Ns, T-1))
-        for t in range(T-1):
+        for t in range(T-1): # valerie : est-ce que la boucle est utile? 
             SigQ[...,t] = Xs[...,t+1] - Xf_mean[...,t+1]
         SigQ = np.reshape(SigQ, (dx, (T-1)*Ns))
         SigQ = SigQ.dot(SigQ.T) / ((T-1)*Ns)
