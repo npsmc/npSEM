@@ -27,6 +27,8 @@ def RMSE(error):
   return np.sqrt(np.mean(error**2))
 
 @jit
+
+# this function should be replaced by numpy.random.multinomial ?
 def sampling_discrete(W, m):  ### Discrete sampling, ADDED by TRANG ###
     "Returns m indices given N weights"
     cumprob = np.cumsum(W)
