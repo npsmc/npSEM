@@ -4,13 +4,18 @@
 import numpy as np 
 import matplotlib.pyplot as plt
 
-
-# %%
 from noisette.methods.generate_data import generate_data
+from noisette.models.l63 import l63_jac
+
+try:
+    import noisette.models.l63f as mdl_l63
+except ImportError:
+    print("Do not forget to build fortran modules")
+
 
 def test_generate_data():
     """ 
-    GENERATE SIMULATED DATA (LORENZ-63 MODEL)
+    Generate simulated data (LORENZ-63 model)
     """
     
     dx       = 3           # dimension of the state
@@ -54,7 +59,6 @@ def test_generate_data():
 
     Ytrain.values[ind_gap_taken] = np.nan
     
-
     return Xtrain, Ytrain
     
 
@@ -68,5 +72,6 @@ plt.plot(Xtrain.values[:,1:].T,'-', color='grey')
 plt.plot(Ytrain.values.T,'.k', markersize= 6)
 plt.xlabel('Lorenz-63 times')
 plt.title('Lorenz-63 true (continuous lines) and observed trajectories (points)')
+plt.show()
 
 # %%
