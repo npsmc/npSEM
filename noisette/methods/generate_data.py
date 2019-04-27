@@ -8,6 +8,7 @@ Created on Tue Feb  6 12:26:19 2018
 from dataclasses import dataclass
 
 import numpy as np
+from numpy.random import multivariate_normal
 
 
 @dataclass
@@ -25,13 +26,15 @@ def generate_data(x0,
                   var_obs,
                   T_burnin,
                   T_train,
-                  T_test):
+                  T_test,
+                  seed = 1):
     """
     Generate the true state, noisy observations and catalog
     of numerical simulations.
     """
 
-    np.random.seed(1)
+    np.random.seed(seed)
+
     # 5 time steps (to be in the attractor space)
     dx = x0.size
     x = np.zeros((dx, T_burnin))
@@ -40,7 +43,7 @@ def generate_data(x0,
         xx = x[:, t]
         for i in range(dt_model):
             xx = f(xx)
-        x[:, t + 1] = xx + np.random.multivariate_normal(np.zeros(dx), Q)
+        x[:, t + 1] = xx + multivariate_normal(np.zeros(dx), Q)
     x0 = x[:, -1]
 
     # generate true state (X_train+X_test)
@@ -51,15 +54,19 @@ def generate_data(x0,
         XX = X[:, t]
         for i in range(dt_model):
             XX = f(XX)
-        X[:, t + 1] = XX + np.random.multivariate_normal(np.zeros(dx), Q)
+        X[:, t + 1] = XX + multivariate_normal(np.zeros(dx), Q)
+
     # generate  partial/noisy observations (Y_train+Y_test)    
     Y = X * np.nan
     yo = np.zeros((dx, T))
+
     for t in range(T - 1):
-        yo[:, t] = h(X[:, t + 1]) + np.random.multivariate_normal(np.zeros(dx), R)
+        yo[:, t] = h(X[:, t + 1]) + multivariate_normal(np.zeros(dx), R)
+
     Y[var_obs, :] = yo[var_obs, :]
 
     # Create training data (catalogs)
+
     # True catalog
     time = np.arange(0, T_train * dt_model * dt_int, dt_model * dt_int)
     X_train = TimeSeries(time, X[:, 0:T_train])
@@ -67,6 +74,7 @@ def generate_data(x0,
     Y_train = TimeSeries( time[1:], Y[:, 0:T_train - 1])
 
     # Create testinging data 
+
     # True catalog
     time = np.arange(0, T_test * dt_model * dt_int, dt_model * dt_int)
     X_test = TimeSeries(time, X[:, T - T_test:])
