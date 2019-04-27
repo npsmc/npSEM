@@ -10,13 +10,12 @@ Created on Wed Feb 21 17:58:02 2018
 @author: Thi Tuyet Trang Chau
 
 """
-import seaborn as sns
 import numpy as np
-from numpy.linalg import inv
-import matplotlib.pyplot as plt #plot
 from methods.CPF_BS_smoothing import _CPF_BS
-from methods.additives import RMSE, CP95
+from methods.additives import RMSE
+from numpy.linalg import inv
 from tqdm import tqdm
+
 
 def maximize(Xs,Xf_mean, y, H, estQ, estR):
     dx, Ns, T = Xs.shape

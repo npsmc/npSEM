@@ -9,8 +9,6 @@ __maintainer__ = "Pierre Tandeo"
 __email__ = "pierre.tandeo@telecom-bretagne.eu"
 
 import numpy as np
-import sys
-from numba import jit
 
 
 def CP95(Xs, X):
@@ -29,7 +27,6 @@ def RMSE(error):
     return np.sqrt(np.mean(error ** 2))
 
 
-@jit
 # this function should be replaced by numpy.random.multinomial ?
 def sampling_discrete(W, m):
     """

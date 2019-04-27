@@ -3,8 +3,8 @@
 Lorenz-96 model. Wrapper to fortran L96 code
 """
 
+import noisette.models.l96_for as tfor
 import numpy as np
-import lorenz63.models.l96_for as tfor
 
 
 class M:

@@ -1,5 +1,6 @@
-from scipy.integrate import ode
 import numpy as np
+from scipy.integrate import ode
+
 
 def l96_f(t, y, F):
   J = np.shape(y)[0]

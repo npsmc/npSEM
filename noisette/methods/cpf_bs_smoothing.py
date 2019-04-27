@@ -7,9 +7,10 @@ Created on Fri Feb 23 14:46:04 2018
 """
 
 import numpy as np
-from noisette.methods.additives import RMSE, sampling_discrete, resampling_sys
 from numpy.linalg import inv
 from tqdm import tqdm
+
+from noisette.methods.additives import RMSE, sampling_discrete, resampling_sys
 
 
 def _CPF(y, X_cond, m, H, Q, R, xb, B, Nf, dx, time):

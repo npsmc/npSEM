@@ -1,5 +1,6 @@
-from scipy.integrate import ode
 import numpy as np
+from scipy.integrate import ode
+
 
 def l63_f(t, y, sigma, rho, beta):
   dy = np.zeros(3)

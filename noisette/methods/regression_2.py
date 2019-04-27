@@ -6,7 +6,8 @@ Created on Tue Mar 20 11:09:01 2018
 @author: trang
 """
 import numpy as np
-import matplotlib.pyplot as plt #plot
+
+
 def regression_2(data,data0,data_perf,t, LLR):
   
     T,dx =np.shape(data);

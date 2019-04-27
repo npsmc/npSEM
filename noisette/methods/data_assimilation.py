@@ -11,9 +11,7 @@ Created on Tue Feb  6 11:40:04 2018
 """ AnDA_data_assimilation.py: Apply stochastic and sequential data assimilation technics using model forecasting or analog forecasting. """
 
 import numpy as np
-from scipy.stats import multivariate_normal
-from scipy.linalg import sqrtm
-from AnDA_codes.AnDA_stat_functions import resampleMultinomial, sample_discrete, sqrt_svd, inv_using_SVD
+from AnDA_codes.AnDA_stat_functions import resampleMultinomial, sample_discrete, sqrt_svd
 from tqdm import tqdm
 
 def data_assimilation(yo, DA):

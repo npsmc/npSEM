@@ -12,10 +12,10 @@ import numpy as np
 
 def m_true(x,pos,ind, Q, f,jacF, dt_model):
     dx,N = np.shape(x)
-    xf = np.zeros([dx,N]);
-    mean_xf = np.zeros([dx,N]);
-    M_xf = np.zeros([dx,dx,N]);
-    Q_xf = np.zeros([dx,dx,N]);
+    xf = np.zeros([dx,N])
+    mean_xf = np.zeros([dx,N])
+    M_xf = np.zeros([dx,dx,N])
+    Q_xf = np.zeros([dx,dx,N])
     #f = lambda x: l63_predict(x, dt, sigma, rho, beta) # python version (slow)
     XX = x
     for j in range(dt_model):

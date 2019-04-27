@@ -5,13 +5,9 @@ Created on Wed Feb 21 13:21:13 2018
 
 @author: trang
 """
-import numpy as np
 import matplotlib.pyplot as plt  # plot
-from matplotlib import cm
-from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
-from scipy.stats import multivariate_normal
-from noisette.methods.llr_forecasting_cv import LLRClass
 
 
 def k_choice(LLR, x, y):

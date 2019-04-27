@@ -5,7 +5,15 @@ Created on Tue Feb  6 12:26:19 2018
 
 @author: trang
 """
+from dataclasses import dataclass
+
 import numpy as np
+
+
+@dataclass
+class TimeSeries:
+    time:   np.ndarray
+    values: np.ndarray
 
 def generate_data(x0,
                   f,
@@ -22,29 +30,6 @@ def generate_data(x0,
     Generate the true state, noisy observations and catalog
     of numerical simulations.
     """
-
-    # initialization
-    class X_train:
-        values = []
-        time = []
-
-    class Y_train:
-        values = []
-        time = []
-
-    class X_test:
-        values = []
-        time = []
-
-    class Y_test:
-        values = []
-        time = []
-
-    #    # test on parameters
-    #    if dt_model>dt_obs:
-    #        print('Error: dt_obs must be bigger than dt_model');
-    #    if (np.mod(dt_obs,dt_model)!=0):
-    #        print('Error: dt_obs must be a multiple of dt_model');
 
     np.random.seed(1)
     # 5 time steps (to be in the attractor space)
@@ -76,21 +61,16 @@ def generate_data(x0,
 
     # Create training data (catalogs)
     # True catalog
-    X_train.time = np.arange(0, T_train * dt_model * dt_int, dt_model * dt_int)
-    X_train.values = X[:, 0:T_train]
+    time = np.arange(0, T_train * dt_model * dt_int, dt_model * dt_int)
+    X_train = TimeSeries(time, X[:, 0:T_train])
     # Noisy catalog
-    Y_train.time = X_train.time[1:]
-    Y_train.values = Y[:, 0:T_train - 1]
+    Y_train = TimeSeries( time[1:], Y[:, 0:T_train - 1])
 
     # Create testinging data 
     # True catalog
-    X_test.time = np.arange(0, T_test * dt_model * dt_int, dt_model * dt_int)
-    X_test.values = X[:, T - T_test:]
+    time = np.arange(0, T_test * dt_model * dt_int, dt_model * dt_int)
+    X_test = TimeSeries(time, X[:, T - T_test:])
     # Noisy catalog
-    Y_test.time = X_test.time[1:]
-    Y_test.values = Y[:, T - T_test:-1]
-
-    # reinitialize random generator number
-    np.random.seed()
+    Y_test = TimeSeries(time[1:], Y[:, T - T_test:-1])
 
     return X_train, Y_train, X_test, Y_test, yo

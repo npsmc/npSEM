@@ -1,3 +1,5 @@
+from math import sin, cos
+
 def linear_f(xt,A):
     fx = A*xt
     return fx
@@ -7,7 +9,7 @@ def sinus_f(xt,a):
     return fx
 
 def kitagawa_f(xt,t,a,b,c):
-    fx = a*xt + b*xt/(1+xt**xt) + c*cos(1.2*t);
+    fx = a*xt + b*xt/(1+xt**xt) + c*cos(1.2*t)
     
 def linear_h(xt,H):
     hx = H*xt

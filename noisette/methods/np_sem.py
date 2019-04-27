@@ -6,16 +6,13 @@ Created on Wed Feb 21 17:56:42 2018
 @author: trang
 """
 import numpy as np
-import matplotlib.pyplot as plt #plot
-import seaborn as sns
+from noisette.CPF_BS_smoothing import _CPF_BS
+from noisette.methods.LLR_forecasting_CV import m_LLR
+from noisette.methods.additives import RMSE
+from noisette.methods.k_choice import k_choice
 from numpy.linalg import inv
-from scipy.linalg import sqrtm
-from methods.LLR_forecasting_CV import m_LLR
-from methods.k_choice import k_choice
-from methods.CPF_BS_smoothing import _CPF_BS
-
-from methods.additives import RMSE, CP95
 from tqdm import tqdm
+
 
 def maximize(Xs,Xf_mean, y, H, estQ, estR):
     dx, Ns, T = Xs.shape
@@ -371,16 +368,16 @@ def LLR_CPF_BS_SEM(Y,X,LLR,H,R,xb,B,Xcond,dx, Nf, Ns,time,nIter,gam_SAEM,estD,es
 #        plt.show()
 
     out_SEM = {'EM_LLR'                         : LLR,
-              'smoothed_samples'               : Xs_all,
-              'conditioning_trajectory'        : Xcond_all,
-              'optimal_number_analogs'         : k_all,  
-              'EM_x0_mean'                     : xb_all,
-              'EM_x0_covariance'               : B_all,
-              'EM_state_error_covariance'      : Q_all,
-              'EM_observation_error_covariance': R_all,
-              'loglikelihood'                  : loglik,
-              'RMSE'                           : rmse_em,
-              'coverage_probability'          : cp_em}
+              'smoothed_samples'                : Xs_all,
+              'conditioning_trajectory'         : Xcond_all,
+              'optimal_number_analogs'          : k_all,
+              'EM_x0_mean'                      : xb_all,
+              'EM_x0_covariance'                : B_all,
+              'EM_state_error_covariance'       : Q_all,
+              'EM_observation_error_covariance' : R_all,
+              'loglikelihood'                   : loglik,
+              'RMSE'                            : rmse_em,
+              'coverage_probability'            : cp_em}
              
     return out_SEM
 
