@@ -9,6 +9,14 @@ l96_model = Extension(name="noisette.models.l96_for",
                       sources = [os.path.join("noisette","models","l96_for.f90")],
                       f2py_options=['only:', 'tinteg1scl emtinteg1scl', ':'])
 
+MAJOR = 0
+MINOR = 1
+PATCH = 0
+VERSION = f"{MAJOR}.{MINOR}.{PATCH}"
+
+with open("noisette/version.py", "w") as f:
+    f.write("__version__ = f'{VERSION}'\n")
+
 setup(name        = "noisette",
       version     = "0.1.0",
       description = "A Non-parametric algorithm for reconstruction and estimation in nonlinear time series with observational errors",
