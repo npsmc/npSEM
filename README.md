@@ -1,4 +1,4 @@
-Before to run the model you must build fortran modules in `models`
+Before to run the model you must build fortran modules in `noisette.models`
 directory.
 
 ```bash
