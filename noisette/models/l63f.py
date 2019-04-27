@@ -5,7 +5,6 @@ Lorenz-63 model. Wrapper to fortran L63 code
 import noisette.models.l63_for as tfor
 import numpy as np
 
-
 class M:
 
     def __init__(self, sigma=10, rho=28, beta=8 / 3, dtcy=0.01):
