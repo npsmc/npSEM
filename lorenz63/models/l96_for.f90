@@ -3,6 +3,8 @@ module l96
   implicit none
 ! f2py -c l96_for.f90 -m l96_for only: tinteg1scl emtinteg1scl : (for intel fortran compiler: --fcompiler=intelem)
 
+private
+
 ! global variables of the module
   real(8) :: dt=0.002d0 ! one/two scale time step
 !  two scale constants
@@ -15,6 +17,8 @@ module l96
   real(8), parameter :: o0ss=1.0, o1ss=0.0 !for shear (o1ss may be a factor)
   integer, parameter :: jparnoloc=0! local/non local polynomial forcing 
                                    ! g(1-->x_n-1,0-->x_n,2-->x_n+1)
+
+public :: tinteg1scl,  emtinteg1scl
 
 contains
 !
