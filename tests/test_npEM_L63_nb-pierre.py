@@ -1,40 +1,32 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[4]:
-
-
-get_ipython().run_line_magic('matplotlib', 'inline')
-get_ipython().run_line_magic('config', "InlineBackend.figure_format = 'retina'")
-
-
 # In[5]:
 
 
 import numpy as np 
 from numpy.linalg import cholesky 
 import matplotlib.pyplot as plt 
-from tqdm import tqdm_notebook as tqdm
+from tqdm import tqdm
 
 
 # In[6]:
 
+import noisette.models.l63f as mdl_l63
+from noisette.methods.generate_data import generate_data
+from noisette.methods.LLR_forecasting_CV import m_LLR
+from noisette.methods.model_forecasting import m_true
+from noisette.methods.k_choice import k_choice
+from noisette.methods.CPF_BS_smoothing import _CPF_BS
+from noisette.methods.SEM import CPF_BS_SEM
+from noisette.methods.npSEM import LLR_CPF_BS_SEM
+from noisette.methods.regression_2 import regression_2
+from noisette.methods.EnKS import _EnKS
+from noisette.save_load import saveTr, loadTr
+from noisette.methods.additives import RMSE
 
-import models.l63f as mdl_l63
-from methods.generate_data import generate_data
-from methods.LLR_forecasting_CV import m_LLR
-from methods.model_forecasting import m_true
-from methods.k_choice import k_choice
-from methods.CPF_BS_smoothing import _CPF_BS
-from methods.SEM import CPF_BS_SEM
-from methods.npSEM import LLR_CPF_BS_SEM
-from methods.regression_2 import regression_2
-from methods.EnKS import _EnKS
-from save_load import saveTr, loadTr
-from methods.additives import RMSE
 
-
-# ## GENERATE SIMULATED DATA (LORENZ-63 MODEL)
+# GENERATE SIMULATED DATA (LORENZ-63 MODEL)
 # 
 # - parameters
 
