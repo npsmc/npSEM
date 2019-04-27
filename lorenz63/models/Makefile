@@ -9,4 +9,4 @@ l96_for:
 	f2py -c $@.f90 -m $@ only: tinteg1scl emtinteg1scl
 
 clean:
-	rm -rf __pycache__ *.pyc *.o *.mod *.so.*
+	rm -rf __pycache__ *.pyc *.o *.mod *.so.* *.so build
