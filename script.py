@@ -5,8 +5,7 @@
 
 
 import numpy as np 
-from numpy.linalg import cholesky 
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 
@@ -14,7 +13,7 @@ from tqdm import tqdm
 
 import noisette.models.l63f as mdl_l63
 from noisette.methods.generate_data import generate_data
-from noisette.methods.llr_forecasting_cv import m_LLR
+from noisette.methods.llr_forecasting_cv import LLRClass
 from noisette.methods.model_forecasting import m_true
 from noisette.methods.k_choice import k_choice
 from noisette.methods.cpf_bs_smoothing import _CPF_BS
