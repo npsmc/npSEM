@@ -4,7 +4,7 @@ Lorenz-96 model. Wrapper to fortran L96 code
 """
 
 import numpy as np
-import models.l96_for as tfor
+import lorenz63.models.l96_for as tfor
 
 
 class M:
