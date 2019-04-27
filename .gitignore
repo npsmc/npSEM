@@ -114,3 +114,4 @@ Info.plist
 *.swp
 *.o
 *.mod
+noisette/version.py
