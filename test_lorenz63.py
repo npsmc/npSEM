@@ -11,6 +11,7 @@ from noisette.methods.model_forecasting import m_true
 from noisette.models.l63 import l63_jac
 
 begin = t.time()
+
 """
  GENERATE SIMULATED DATA (LORENZ-63 MODEL)
  
@@ -67,7 +68,7 @@ Q_true = np.eye(dx) * sig2_Q
 R_true = np.eye(dx) * sig2_R
 
 # prior state
-x0 = np.r_[8, 0, 30]
+x0 = np.array([8, 0, 30])
 
 # generate data
 T_burnin = 5 * 10 ** 3
@@ -117,14 +118,6 @@ LLR = LLRClass(data, data_prev, num_ana, estQ)
 
 LLR.k_choice()
 
-plt.rcParams['figure.figsize'] = (8, 5)
-plt.figure(1)
-fig, ax1 = plt.subplots()
-ax1.plot(LLR.nN_m, LLR.E, color='b')
-ax1.set_xlabel('number of $m$-analogs $(k_m)$')
-ax1.set_ylabel('RMSE')
-plt.show()
-
 # Forecast with LLR
 xf, mean_xf, Q_xf, M_xf = LLR.m_LLR(X_test.values[:, :-1], 1, np.ones([1]))
 
@@ -133,8 +126,10 @@ xf, mean_xf, Q_xf, M_xf = LLR.m_LLR(X_test.values[:, :-1], 1, np.ones([1]))
 # Here I use the true model  (m) to forecast instead of LLR (m_hat).
 
 
-def m(x, pos_x, ind_x): return m_true(x, pos_x, ind_x, Q_true,
-                                      mx, jac_mx, dt_model)
+def m(x, pos_x, ind_x): 
+
+    return m_true(x, pos_x, ind_x, Q_true,
+                  mx, jac_mx, dt_model)
 
 
 # m_hat = lambda  x,pos_x,ind_x: m_LLR(x,pos_x,ind_x,LLR)
@@ -155,3 +150,11 @@ Xa, Xf, mean_Xf, cov_Xf, Wa, ind, loglik = _CPF(Y_test.values,
                                                 xb, B, Nf, dx,
                                                 time)
 print(f"Elapsed time : {t.time() - begin}")
+plt.rcParams['figure.figsize'] = (8, 5)
+plt.figure(1)
+fig, ax1 = plt.subplots()
+ax1.plot(LLR.nN_m, LLR.E, color='b')
+ax1.set_xlabel('number of $m$-analogs $(k_m)$')
+ax1.set_ylabel('RMSE')
+plt.show()
+
