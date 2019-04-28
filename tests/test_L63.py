@@ -3,11 +3,6 @@
 
 # In[1]:
 
-
-get_ipython().run_line_magic('matplotlib', 'inline')
-get_ipython().run_line_magic('config', "InlineBackend.figure_format = 'retina'")
-
-
 # In[2]:
 
 
@@ -70,8 +65,9 @@ T_test = 10*10**2 # length of the testing data
 X_train, Y_train, X_test, Y_test, yo = generate_data(x0,mx,h,Q_true,R_true,dt_int,dt_model,var_obs, T_burnin, T_train, T_test) 
 X_train.time = np.arange(0,T_train)
 Y_train.time= X_train.time[1:]
-#np.random.seed(0);# random number generator
-N=np.size(Y_train.values);Ngap= np.floor(N/10); # create gaps: 10 percent of missing values
+
+N=np.size(Y_train.values)
+Ngap= np.floor(N/10); # create gaps: 10 percent of missing values
 indX=np.random.choice(np.arange(0,N), int(Ngap), replace=False)
 ind_gap_taken = divmod(indX ,len(Y_train.time))
 Y_train.values[ind_gap_taken]=np.nan
