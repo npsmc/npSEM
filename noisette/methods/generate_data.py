@@ -5,16 +5,10 @@ Created on Tue Feb  6 12:26:19 2018
 
 @author: trang
 """
-from dataclasses import dataclass
 
 import numpy as np
 from numpy.random import multivariate_normal
-
-
-@dataclass
-class TimeSeries:
-    time:   np.ndarray
-    values: np.ndarray
+from noisette.time_series import TimeSeries
 
 def generate_data(x0,
                   f,
