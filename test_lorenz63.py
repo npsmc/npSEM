@@ -28,18 +28,19 @@ begin = t.time()
  Q_true             : model covariance
  R_true             : observation covariance
 """
-dx = 3
-dt_int = 0.01
+
+dx       =  3
+dt_int   = 0.01
 dt_model = 8
-var_obs = np.array([0, 1, 2])
-dy = len(var_obs)
-H = np.eye(dx)  # H = H[(0,2),:]
+var_obs  = np.array([0, 1, 2])
+dy       = var_obs.size
+H        = np.eye(dx)  # H = H[(0,2),:]
 
+def h(x):
+    return H.dot(x)
 
-def h(x): return H.dot(x)
-
-
-def jacH(x): return H
+def jacH(x):
+    return H
 
 
 sigma = 10.0
@@ -102,10 +103,12 @@ num_ana = 200
 
 estQ = Est(value=Q_true, type='adaptive', form='constant',
            base=np.eye(dx), decision=True)
+
 estR = Est(value=R_true, type='adaptive', form='constant',
            base=np.eye(dx), decision=True)
+
 estX0 = Est(decision=False)
-estD = Est(decision=True)
+estD  = Est(decision=True)
 
 data = Data(dx, data_init, ind_nogap, Y_train)
 data_prev = Data(dx, data_init, ind_nogap, Y_train)
@@ -130,9 +133,6 @@ def m(x, pos_x, ind_x):
 
     return m_true(x, pos_x, ind_x, Q_true,
                   mx, jac_mx, dt_model)
-
-
-# m_hat = lambda  x,pos_x,ind_x: m_LLR(x,pos_x,ind_x,LLR)
 
 
 time = np.arange(T_test - 1)  # [np.newaxis].T

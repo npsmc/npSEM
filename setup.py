@@ -3,6 +3,15 @@ from numpy.distutils.core import setup, Extension
 
 import os
 
+CLASSIFIERS = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python :: 3.7",
+    "Topic :: Scientific/Engineering",
+    "Operating System :: MacOS"
+]
+
 l63_model = Extension(name="noisette.models.l63_for", 
                       sources = [os.path.join("noisette","models","l63_for.f90")])
 l96_model = Extension(name="noisette.models.l96_for", 
@@ -15,7 +24,7 @@ PATCH = 0
 VERSION = f"{MAJOR}.{MINOR}.{PATCH}"
 
 with open("noisette/version.py", "w") as f:
-    f.write("__version__ = f'{VERSION}'\n")
+    f.write(f"__version__ = \"{VERSION}\"\n")
 
 setup(name        = "noisette",
       version     = "0.1.0",
@@ -24,6 +33,7 @@ setup(name        = "noisette",
       author_email= "thi-tuyet-trang.chau@univ-rennes1.fr",
       url         = "https://gitlab.univ-rennes1.fr/wind/lorenz63",
       install_requires = ['numpy', 'scipy', 'pickle'],
+      classifiers = CLASSIFIERS,
       packages    = find_packages(exclude=['notebooks', 
                                            'doc', 
                                            'examples', 
