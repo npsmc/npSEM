@@ -8,3 +8,6 @@ except ModuleNotFoundError:
           run `python3 setup.py build_ext --inplace`
           """)
     sys.exit(0)
+
+from .methods.data import Data
+from .methods.est  import Est
