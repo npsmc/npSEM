@@ -50,12 +50,10 @@ contains
 ! Time integration of the small-scale model
 
     implicit none
-!  Inputs ktss,fss
 
     real(8) :: y(:)
     real(8), intent(in)  :: xin(:)
     real(8), intent(out) :: ssforce(:)
-    real(8) :: fss
     integer :: k,ny,nx,nj,ix
 
 
@@ -526,7 +524,6 @@ contains
     real(8),dimension(nx), intent(out) ::tmssforce
 
     real(8),dimension(nx) :: ssforce,ssforce1
-!    real(8) :: fss
     integer :: k,ix
     integer :: nj
 
@@ -650,7 +647,6 @@ contains
 
     real(8),dimension(nx,nem) :: ssforce,ssforce1
 
-!    real(8) :: fss
     integer :: k,ix
     integer :: nj
 

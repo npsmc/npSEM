@@ -5,36 +5,7 @@ Created on Wed Feb 21 13:21:13 2018
 
 @author: trang
 """
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
-
-
-class Est:
-    """
-     type: chosen predefined type of model error covatiance ('fixed', 'adaptive')
-     form: chosen esimated matrix form ('full', 'diag', 'constant')
-     base: for fixed base of model covariance (for 'constant' matrix form only)
-     decision: chosen if Q is estimated or not ('True', 'False')
-    """
-
-    def __init__(self, value=None, type=None, form=None, base=None, decision=None):
-        self.value = value
-        self.type = type
-        self.form = form
-        self.base = base
-        self.decision = decision
-
-
-class Data:
-
-    def __init__(self, dx, data_init, ind_nogap, Y_train):
-        self.ana = np.zeros((dx, 1, len(ind_nogap)))
-        self.suc = np.zeros((dx, 1, len(ind_nogap)))
-        self.ana[:, 0, :] = data_init[:dx, ind_nogap]
-        self.suc[:, 0, :] = data_init[dx:, ind_nogap]
-        self.time = Y_train.time[ind_nogap]
-
 
 class LLRClass:
     """
