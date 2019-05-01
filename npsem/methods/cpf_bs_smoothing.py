@@ -9,9 +9,9 @@ Created on Fri Feb 23 14:46:04 2018
 import numpy as np
 from numpy.linalg import inv
 from scipy.linalg import sqrtm
-from methods.additives import RMSE, sampling_discrete, resampling_sys
+from .additives import RMSE, sampling_discrete, resampling_sys
 from tqdm import tqdm
-import matplotlib.pyplot as plt #plot
+import matplotlib.pyplot as plt 
 
 def _CPF(y, X_cond, m, H, Q, R, xb, B, Nf,dx, time): 
         
