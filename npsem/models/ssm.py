@@ -31,31 +31,23 @@ class SSM:
                        x0       = [8, 0, 30],
                        var_obs  = [0, 1, 2],
                        sig2_Q   = 1,
-                       sig2_R   = 2 ):
+                       sig2_R   = 2):
 
         self.h        = h
         self.jac_h    = jac_h
         self.mx       = mx
         self.jac_mx   = jac_mx
 
-        dx            = len(x0)
-        self.var_obs  = var_obs
-        self.dy       = len(var_obs)
-        self.H        = np.eye(dx)
-        self.sig2_Q   = sig2_Q
-        self.sig2_R   = sig2_R  
-        self.Q        = np.eye(dx) * sig2_Q
-        self.R        = np.eye(dx) * sig2_R
-
-        self.x0       = np.array(x0)
         self.dt_int   = dt_int
         self.dt_model = dt_model
-        self.H        = np.eye(dx)  # H = H[(0,2),:]
-        self.dy       = self.var_obs.size
-        self.sigma    = sigma
-        self.rho      = rho
-        self.beta     = beta
-        self.fmdl     = mdl_l63.M(sigma, rho, beta, dt_int)
+        self.dx       = len(x0)
+        self.x0       = np.array(x0)
+        self.dy       = len(var_obs)
+        self.var_obs  = np.array(var_obs)
+        self.sig2_Q   = sig2_Q
+        self.sig2_R   = sig2_R  
+        self.Q        = np.eye(self.dx) * sig2_Q
+        self.R        = np.eye(self.dx) * sig2_R
 
 
     def generate_data(self, T_burnin, T, seed = 1):
@@ -65,31 +57,30 @@ class SSM:
 
         np.random.seed(seed)
 
-        dx = self.x0.size
-        x = np.zeros((dx, T_burnin))
+        x = np.zeros((self.dx, T_burnin))
         x[:, 0] = self.x0
         for t in range(T_burnin - 1):
             xx = x[:, t]
             for i in range(self.dt_model):
                 xx = self.mx(xx)
-            x[:, t + 1] = xx + multivariate_normal(dx*[0], self.Q)
+            x[:, t + 1] = xx + multivariate_normal(self.dx*[0], self.Q)
         x0 = x[:, -1]
 
         # generate true state
-        X = np.zeros((dx, T))
+        X = np.zeros((self.dx, T))
         X[:, 0] = x0
         for t in range(T - 1):
             XX = X[:, t]
             for i in range(self.dt_model):
                 XX = self.mx(XX)
-            X[:, t + 1] = XX + multivariate_normal(dx*[0], self.Q)
+            X[:, t + 1] = XX + multivariate_normal(self.dx*[0], self.Q)
 
         # generate  partial/noisy observations
         Y = X * np.nan
-        yo = np.zeros((dx, T))
+        yo = np.zeros((self.dx, T))
 
         for t in range(T - 1):
-            yo[:, t] = self.h(X[:, t + 1]) + multivariate_normal(dx*[0], 
+            yo[:, t] = self.h(X[:, t + 1]) + multivariate_normal(self.dx*[0], 
                                                                  self.R)
 
         Y[self.var_obs, :] = yo[self.var_obs, :]
