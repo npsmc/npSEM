@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt #plot
 import seaborn as sns
 from numpy.linalg import inv
 from scipy.linalg import sqrtm
-from methods.LLR_forecasting_CV import m_LLR
-from methods.k_choice import k_choice
-from methods.CPF_BS_smoothing import _CPF_BS
-from methods.additives import RMSE
+from .llr_forecasting_cv import m_LLR
+from .k_choice import k_choice
+from .cpf_bs_smoothing import _CPF_BS
+from .additives import RMSE
 from tqdm import tqdm
 
 def maximize(Xs,Xf_mean, y, H, estQ, estR):
