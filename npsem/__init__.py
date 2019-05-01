@@ -11,3 +11,4 @@ except ModuleNotFoundError:
 
 from .methods.data import Data
 from .methods.est  import Est
+from .time_series  import TimeSeries
