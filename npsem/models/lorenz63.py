@@ -4,11 +4,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.random import multivariate_normal
 
-import noisette.models.l63f as mdl_l63
-from noisette.models.l63 import l63_jac
-from noisette.time_series import TimeSeries
+import .l63f as mdl_l63
+from   .l63 import l63_jac
+from   ..time_series import TimeSeries
+from   .ssm import SSM
 
-class Lorenz63:
+class Lorenz63(SSM):
     """
      GENERATE SIMULATED DATA (LORENZ-63 MODEL)
      
@@ -36,21 +37,17 @@ class Lorenz63:
                        sig2_R   = 2, 
                        x0       = [8, 0, 30]):
 
-        self.x0       = np.array(x0)
         dx            = len(x0)
+        super().__init__(dx, var_obs, sig2_Q, sig2_R)
+
+        self.x0       = np.array(x0)
         self.dt_int   = dt_int
         self.dt_model = dt_model
-        self.var_obs  = np.array(var_obs)
         self.H        = np.eye(dx)  # H = H[(0,2),:]
         self.dy       = self.var_obs.size
         self.sigma    = sigma
         self.rho      = rho
         self.beta     = beta
-        # Setting covariances
-        self.sig2_Q   = sig2_Q
-        self.sig2_R   = sig2_R  
-        self.Q        = np.eye(dx) * sig2_Q
-        self.R        = np.eye(dx) * sig2_R
         self.fmdl     = mdl_l63.M(sigma, rho, beta, dt_int)
 
     def h(self, x):
@@ -61,7 +58,7 @@ class Lorenz63:
 
     def mx(self, x): 
         " fortran version (fast) "
-        return self.fmdl.integ(x)  
+        return self.fmdl.integrate(x)  
 
     def jac_mx(self, x): 
         " python version (slow) "
