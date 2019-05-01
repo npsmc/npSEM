@@ -1,4 +1,11 @@
-# npSEM
+# npSEM (non-parametric stochastic estimation method)
+
+# INSTALLATION
+
+```bash
+pip install git+https://github.com/pnavaro/npsem.git
+```
+
 # DESCRIPTION
 
 One of the classical problems in time series analysis consists in identifying a dynamical model from noisy data. Ignoring the noise in the inference procedure may lead biased estimates for the dynamics, and this becomes more and more problematic when the signal-to-noise ratio increases.
