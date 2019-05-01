@@ -6,8 +6,7 @@ Available on https://github.com/ptandeo/CEDA
 
 import numpy as np
 from numpy.linalg import inv
-from methods.additives import RMSE, inv_svd
-
+from .additives import RMSE, inv_svd
 
 
 def _EnKF(dx, T, dy, xb, B, Q, R, Ne, alpha, f, H, obs):
