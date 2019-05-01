@@ -62,7 +62,7 @@ X, Y     = sinus3.generate_data( T_burnin, T)
 
 # state and observations (when available)
 sns.set_style("white")
-fig, axes = plt.subplots( 3, figsize = (15, 4))
+fig, axes = plt.subplots( 3, figsize = (15, 15))
 axes[0].plot(X.time[1:], X.values[:,1:].T,'-', color='b')
 axes[0].plot(Y.time, Y.values.T,'.b', markersize= 6)
 plt.legend(['state','observations'], ncol=2)
