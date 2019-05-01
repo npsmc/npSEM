@@ -15,7 +15,7 @@ class M:
         self.dt=dtcy/self.kt # integration time step
         self.nx=3
 
-    def integ(self,xold):
+    def integrate(self,xold):
         "Time integration of Lorenz-63 (single and ensemble)"
         import models.l63_for as tfor
         import numpy as np
