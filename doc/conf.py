@@ -19,7 +19,7 @@ import sphinx_bootstrap_theme
 
 # -- Project information -----------------------------------------------------
 
-project = 'noisette'
+project = 'npsem'
 copyright = '2019, Thi Tuyet Trang CHAU'
 author = 'Thi Tuyet Trang CHAU'
 

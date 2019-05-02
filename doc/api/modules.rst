@@ -1,7 +1,7 @@
-noisette
-========
+npsem
+=====
 
 .. toctree::
    :maxdepth: 4
 
-   noisette
+   npsem

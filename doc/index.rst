@@ -10,7 +10,7 @@ Welcome to noisette's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-.. automodule:: noisette
+.. automodule:: npsem
    :members:
    :undoc-members:
 
