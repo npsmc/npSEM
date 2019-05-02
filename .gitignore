@@ -5,3 +5,4 @@ build/
 *.orig
 .idea/workspace.xml
 .ipynb_checkpoints/test_lorenz63-checkpoint.py
+sinus3_data.png
