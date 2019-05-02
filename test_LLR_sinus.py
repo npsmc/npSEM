@@ -86,8 +86,8 @@ class LLR:
         time = Y_train.time[ind_nogap] # catalog with analogs and successors
 
     class data_prev:
-        ana =data_init[:dx,ind_nogap]
-        suc = data_init[dx:,ind_nogap]
+        ana  = data_init[:dx,ind_nogap]
+        suc  = data_init[dx:,ind_nogap]
         time = Y_train.time[ind_nogap] # catalog with analogs and successors
 
 
