@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt #plot
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 #from scipy.stats import multivariate_normal
-from methods.LLR_forecasting_CV import m_LLR
+from .llr_forecasting_cv import m_LLR
 
 def k_choice(LLR, x, y, time):
     dx, N, T = x.shape;

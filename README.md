@@ -1,5 +1,7 @@
 # npSEM (non-parametric stochastic estimation method)
 
+[![Build Status](https://travis-ci.org/pnavaro/npSEM.svg?branch=master)](https://travis-ci.org/pnavaro/npSEM)
+
 ## Installation
 
 ```bash

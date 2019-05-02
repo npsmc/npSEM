@@ -25,16 +25,18 @@ import seaborn as sns
 
 
 #import routines
-from npsem.methods.generate_data import generate_data
-from npsem.methods.llr_forecasting_cv import m_LLR
-from npsem.methods.model_forecasting import m_true
-from npsem.methods.k_choice import k_choice
-from npsem.methods.cpf_bs_smoothing import _CPF_BS
-from npsem.methods.sem import CPF_BS_SEM
-from npsem.methods.npsem import LLR_CPF_BS_SEM
-from npsem.methods.enks import _EnKS
-from npsem.methods.additives import RMSE
-from npsem.save_load import loadTr
+from npsem         import loadTr
+from npsem.methods import generate_data
+from npsem.methods import m_LLR
+from npsem.methods import m_true
+from npsem.methods import k_choice
+from npsem.methods import _CPF_BS
+from npsem.methods import CPF_BS_SEM
+from npsem.methods import LLR_CPF_BS_SEM
+from npsem.methods import _EnKS
+from npsem.methods import RMSE
+
+from npsem import TimeSeries
 
 
 # In[2]:
@@ -59,6 +61,70 @@ jac_mx = lambda x: a*np.cos(a*x) # python version (slow)
 sig2_Q = 0.1; sig2_R = 0.1 # parameters
 Q_true = np.eye(dx) *sig2_Q #  model variance
 R_true = np.eye(dx) *sig2_R # observation variance
+
+
+def generate_data(x0,f,h,Q,R,dt_int,dt_model,var_obs, T_burnin, T_train, T_test):
+    """ Generate the true state, noisy observations and catalog of numerical simulations. """
+
+    np.random.seed(1)
+    # 5 time steps (to be in the attractor space)
+    dx = x0.size
+    x = np.zeros((dx,T_burnin))
+    x[:,0] = x0
+    for t in range(T_burnin-1):
+        xx = x[:,t]
+        for  i in range(dt_model):
+            xx = f(xx)
+        x[:,t+1] = xx + np.random.multivariate_normal(np.zeros(dx),Q)
+    x0 = x[:,-1];
+
+    # generate true state (X_train+X_test)
+    T = T_train+T_test
+    X = np.zeros((dx,T))
+    X[:,0] = x0
+    for t in range(T-1):
+        XX = X[:,t]
+        for  i in range(dt_model):
+            XX = f(XX)
+        X[:,t+1] = XX + np.random.multivariate_normal(np.zeros(dx),Q)
+    # generate  partial/noisy observations (Y_train+Y_test)    
+    Y = X*np.nan
+    yo = np.zeros((dx,T))
+    for t in range(T-1):
+        yo[:,t]= h(X[:,t+1]) + np.random.multivariate_normal(np.zeros(dx),R)
+    Y[var_obs,:] = yo[var_obs,:];
+    
+    # Create training data (catalogs)
+    ## True catalog
+    X_train.time = np.arange(0,T_train*dt_model*dt_int,dt_model*dt_int);
+    X_train.values = X[:, 0:T_train];
+    ## Noisy catalog
+    Y_train.time = X_train.time[1:];
+    Y_train.values = Y[:, 0:T_train-1]
+
+    # Create testinging data 
+    ## True catalog
+    X_test.time = np.arange(0,T_test*dt_model*dt_int,dt_model*dt_int);
+    X_test.values = X[:, T-T_test:]; 
+    ## Noisy catalog
+    Y_test.time = X_test.time[1:];
+    Y_test.values = Y[:, T-T_test:-1]; 
+ 
+    
+
+    # reinitialize random generator number
+    np.random.seed()
+
+    return X_train, Y_train, X_test, Y_test,yo;
+
+
+    
+    
+
+                                      
+    
+    
+
 
 # prior state
 x0 = np.ones(1)
@@ -91,7 +157,7 @@ plt.ylabel('space')
 plt.title('Time seies of the state and observed trajectories of the sinus model')
 plt.xlim([0,100])
 plt.grid()
-plt.show()
+plt.draw()
 
 
 # In[3]:
@@ -213,25 +279,37 @@ out_SEM = CPF_BS_SEM(Y_train.values,X_train.values, m, Q_init, H, R_init, xb , B
 ## SEM[\hat m] 
 estD.decision = False; 
 LLR.Q.value = Q_init
-LLR.data.ana = np.zeros((dx,1,T_train-1)); LLR.data.suc = np.zeros((dx,1,T_train-1));
-LLR.data.ana[:,0,:] =X_train0.values[...,:-1]; LLR.data.suc[:,0,:] = X_train0.values[...,1:]; LLR.data.time = X_train.time[:-1]
+LLR.data.ana = np.zeros((dx,1,T_train-1))
+LLR.data.suc = np.zeros((dx,1,T_train-1))
+LLR.data.ana[:,0,:] = X_train0.values[...,:-1]
+LLR.data.suc[:,0,:] = X_train0.values[...,1:]
+LLR.data.time = X_train.time[:-1]
 k_m, k_Q = k_choice(LLR,LLR.data.ana,LLR.data.suc,LLR.data.time) # choose an optimal number of neighbors used in LLR forecast
 LLR.k_m =k_m; LLR.k_Q =k_Q; 
 
 LLR.lag_x =0; 
 m_hat = lambda  x,pos_x,ind_x: m_LLR(x,pos_x,ind_x,LLR) # LLR forecast model
 # run EnKS for generating the fisrt conditioning trajectory 
-Xs, _, _ = _EnKS(dx, 20, len(Y_train.time), H, R_init, Y_train.values,X_train.values, dy, xb, B, Q_init, 1, m_hat)
+Xs, _, _ = _EnKS(dx, 20, len(Y_train.time), H, R_init, Y_train.values,
+                 X_train.values, dy, xb, B, Q_init, 1, m_hat)
 X_conditioning = Xs.mean(1)
 
 # outputs of SEM[\hat m] algorithm
-out_SEM_hat = LLR_CPF_BS_SEM(Y_train.values,X_train.values, LLR, H, R_init,xb,B, X_conditioning,dx, Nf, Ns,X_train.time, N_iter, gam1, estD, estQ, estR, estX0)
+out_SEM_hat = LLR_CPF_BS_SEM(Y_train.values,X_train.values, 
+              LLR, H, R_init,xb,B, X_conditioning,dx, Nf, 
+              Ns,X_train.time, N_iter, gam1, estD, estQ, estR, estX0)
     
-
 ## npSEM   
-estD.decision = True;  LLR.lag_x =5;  LLR.Q = estQ; LLR.nN_m = np.arange(10,num_ana_m,20); LLR.nN_Q = np.arange(10,num_ana_Q,20)
-LLR.data.ana = np.zeros((dx,1,len(ind_nogap))); LLR.data.suc = np.zeros((dx,1,len(ind_nogap)));
-LLR.data.ana[:,0,:] =data_init[:dx,ind_nogap]; LLR.data.suc[:,0,:] = data_init[dx:,ind_nogap]; LLR.data.time = Y_train.time[ind_nogap] 
+estD.decision = True
+LLR.lag_x =5
+LLR.Q = estQ
+LLR.nN_m = np.arange(10,num_ana_m,20)
+LLR.nN_Q = np.arange(10,num_ana_Q,20)
+LLR.data.ana = np.zeros((dx,1,len(ind_nogap)))
+LLR.data.suc = np.zeros((dx,1,len(ind_nogap)))
+LLR.data.ana[:,0,:] =data_init[:dx,ind_nogap]
+LLR.data.suc[:,0,:] = data_init[dx:,ind_nogap]
+LLR.data.time = Y_train.time[ind_nogap] 
 
 LLR.Q.value = Q_init
 k_m, k_Q = k_choice(LLR,LLR.data.ana,LLR.data.suc,LLR.data.time) # choose an optimal number of neighbors used in LLR forecast
@@ -239,7 +317,8 @@ LLR.k_m =k_m; LLR.k_Q =k_Q;
     
 m_hat = lambda  x,pos_x,ind_x: m_LLR(x,pos_x,ind_x,LLR) # LLR forecast model
 # run EnKS for generating the fisrt conditioning trajectory 
-Xs, _, _ = _EnKS(dx, 20, len(Y_train.time), H, R_init, Y_train.values,X_train.values, dy, xb, B, Q_init, 1, m_hat)
+Xs, _, _ = _EnKS(dx, 20, len(Y_train.time), H, R_init, 
+                 Y_train.values,X_train.values, dy, xb, B, Q_init, 1, m_hat)
 X_conditioning = Xs.mean(1)
     
 # outputs of npSEM algorithm    
@@ -469,9 +548,4 @@ plt.ylabel('$\~X_{t}$')
 plt.grid()
 plt.show()
 
-
 # In[ ]:
-
-
-
-

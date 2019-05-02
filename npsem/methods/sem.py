@@ -14,8 +14,8 @@ import seaborn as sns
 import numpy as np
 from numpy.linalg import inv
 import matplotlib.pyplot as plt #plot
-from methods.CPF_BS_smoothing import _CPF_BS
-from methods.additives import RMSE
+from .cpf_bs_smoothing import _CPF_BS
+from .additives import RMSE
 from tqdm import tqdm
 
 def maximize(Xs,Xf_mean, y, H, estQ, estR):
