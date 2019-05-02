@@ -3,14 +3,14 @@ import time as t
 import matplotlib.pyplot as plt
 import numpy as np
 
-import noisette.models.l63f as mdl_l63
-from noisette.methods.cpf_bs_smoothing import _CPF
-from noisette.methods.generate_data import generate_data
-from noisette.methods.llr_forecasting_cv import LLRClass
-from noisette import Data
-from noisette import Est
-from noisette.methods.model_forecasting import m_true
-from noisette.models.l63 import l63_jac
+import npsem.models.l63f as mdl_l63
+from npsem.methods.cpf_bs_smoothing import _CPF
+from npsem.methods.generate_data import generate_data
+from npsem.methods.llr_forecasting_cv import LLRClass
+from npsem import Data
+from npsem import Est
+from npsem.methods.model_forecasting import m_true
+from npsem.models.l63 import l63_jac
 
 begin = t.time()
 
