@@ -3,6 +3,6 @@ build/
 *.so
 *.plist
 *.orig
-.idea/workspace.xml
-.ipynb_checkpoints/test_lorenz63-checkpoint.py
+.ipynb_checkpoints/
 sinus3_data.png
+.idea/
