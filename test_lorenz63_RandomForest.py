@@ -1,13 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[187]:
-
-
-get_ipython().run_line_magic('matplotlib', 'inline')
-get_ipython().run_line_magic('config', "InlineBackend.figure_format = 'retina'")
-
-
 # In[188]:
 
 
@@ -20,12 +13,11 @@ from tqdm import tqdm_notebook as tqdm
 # In[207]:
 
 
-import models.l63f as mdl_l63
-from models.L63 import l63_jac
-from methods.generate_data import generate_data
-from methods.llr_forecasting_CV import LLRClass, Data, Est
-from methods.model_forecasting import m_true
-from models.L63 import l63_jac
+import npsem.models.l63f as mdl_l63
+from npsem.models.l63 import l63_jac
+from npsem.methods.generate_data import generate_data
+from npsem.methods.model_forecasting import m_true
+from npsem.models.l63 import l63_jac
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.multioutput import MultiOutputRegressor
@@ -87,7 +79,7 @@ sigma = 10.0
 rho = 28.0
 beta = 8.0/3 # physical parameters
 fmdl = mdl_l63.M(sigma=sigma, rho=rho, beta=beta, dtcy= dt_int)
-mx = lambda x: fmdl.integ(x) # fortran version (fast)
+mx = lambda x: fmdl.integrate(x) # fortran version (fast)
 jac_mx = lambda x: l63_jac(x, dt_int*dt_model, sigma, rho, beta) # python version (slow)
 
 # Setting covariances

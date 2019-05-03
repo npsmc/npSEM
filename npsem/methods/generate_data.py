@@ -12,7 +12,7 @@ Created on Tue Feb  6 12:26:19 2018
 
 import numpy as np
 
-def generate_data(x0,f,h,Q,R,dt_int,dt_model,var_obs, T_burnin, T_train, T_test):
+def generate_data(x0,f,h,Q,R,dt_int,dt_model,var_obs, T_burnin, T_train, T_test, seed=0):
     """ Generate the true state, noisy observations and catalog of numerical simulations. """
 
     # initialization
@@ -36,7 +36,7 @@ def generate_data(x0,f,h,Q,R,dt_int,dt_model,var_obs, T_burnin, T_train, T_test)
 #    if (np.mod(dt_obs,dt_model)!=0):
 #        print('Error: dt_obs must be a multiple of dt_model');
 
-    np.random.seed(1)
+    np.random.seed(seed)
     # 5 time steps (to be in the attractor space)
     dx = x0.size
     x = np.zeros((dx,T_burnin))

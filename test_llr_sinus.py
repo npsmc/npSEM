@@ -77,18 +77,15 @@ data_init = np.r_['0,2,0',Y_train.values[...,:-1], Y_train.values[...,1:]];
 # parameters of the analog forecasting method
 class LLR:
 
-    data = Data( dx, data_init, Y_train)
+    time = Y_train.time
 
-        ana = np.zeros((dx,1,len(ind_nogap)))
-        suc = np.zeros((dx,1,len(ind_nogap)))
-        ana[:,0,:] = data_init[:dx,ind_nogap]
-        suc[:,0,:] = data_init[dx:,ind_nogap] 
-        time = Y_train.time[ind_nogap] # catalog with analogs and successors
+    class data: 
+        ana = data_init[:dx,np.newaxis,:]
+        suc = data_init[dx:,np.newaxis,:] 
 
     class data_prev:
-        ana  = data_init[:dx,ind_nogap]
-        suc  = data_init[dx:,ind_nogap]
-        time = Y_train.time[ind_nogap] # catalog with analogs and successors
+        ana = data_init[:dx,:]
+        suc = data_init[dx:,:]
 
 
     lag_x  = 5 # lag of removed analogs around x to avoid an over-fitting forecast
@@ -112,24 +109,26 @@ class LLR:
 
 # SETTING PARAMETERS 
 X_conditioning = np.zeros([dx,T_train+1]) # the conditioning trajectory 
-B = Q_true
-xb= X_train.values[...,0]
-Nf = 10# number of particles
-Ns = 5 # number of realizations
+B  = Q_true
+xb = X_train.values[...,0]
+Nf = 10  # number of particles
+Ns = 5   # number of realizations
 
-N_iter =500# number of iterations of EM algorithms
+N_iter = 500# number of iterations of EM algorithms
 # Step functions
-gam1 = np.ones(N_iter,dtype=int)  #for SEM (stochastic EM)
+gam1 = np.ones(N_iter, dtype=int)  #for SEM (stochastic EM)
 gam2 = np.ones(N_iter, dtype=int)
 for k in range(50,N_iter):
     gam2[k] = k**(-0.7) # for SAEM (stochastic approximation EM)
 #gam1 = gam2
 
 # initial parameters
-aintQ = 0.5; bintQ = 5
-aintR = 1; bintR = 5
-R_init = .5*np.eye(dy)    
-Q_init = 3*np.eye(dx)
+aintQ       = 0.5
+bintQ       = 5
+aintR       = 1
+bintR       = 5
+R_init      = 0.5 * np.eye(dy)    
+Q_init      = 3.0 * np.eye(dx)
 LLR.Q.value = Q_init
 
 
@@ -137,22 +136,27 @@ LLR.Q.value = Q_init
 
 
 def m_LLR(x,tx, ind_x,LLR):
-    """ Apply the analog method on data of historical data to generate forecasts. """
+    """ Apply the analog method on data of historical data 
+        to generate forecasts. """
 
     # initializations
-    dx, N = x.shape;
-    xf = np.zeros([dx,N]);
-    mean_xf = np.zeros([dx,N]);
-    Q_xf = np.zeros([dx,dx,N]);
-    M_xf = np.zeros([dx+1,dx,N]);
+    dx, N   = x.shape
+    xf      = np.zeros([dx,N])
+    mean_xf = np.zeros([dx,N])
+    Q_xf    = np.zeros([dx,dx,N])
+    M_xf    = np.zeros([dx+1,dx,N])
     
-    lag_x = LLR.lag_x; lag_Dx = LLR.lag_Dx(LLR.data.ana);
+    lag_x   = LLR.lag_x
+    lag_Dx  = LLR.lag_Dx(LLR.data.ana)
+
     if len(LLR.data.ana.shape)==1:
-        dimx = 1; dimD =1; #lenC = LLR.data.ana.shape
+        dimx = 1
+        dimD = 1 #lenC = LLR.data.ana.shape
     elif len(LLR.data.ana.shape)==2:
-        dimD =1; dimx,_ = LLR.data.ana.shape
+        dimD = 1
+        dimx = LLR.data.ana.shape[0]
     else:
-        dimx,dimD,_ = LLR.data.ana.shape;
+        dimx,dimD,_ = LLR.data.ana.shape
 #    TC = lenC +1;
     try:
         indCV =  (np.abs((tx-LLR.data.time)) % LLR.time_period <= lag_Dx) & (np.abs(tx-LLR.data.time) >= lag_x)
@@ -163,31 +167,43 @@ def m_LLR(x,tx, ind_x,LLR):
     analogs_CV = np.reshape(LLR.data.ana[...,np.squeeze(indCV)],(dimx,lenD*dimD));
     successors_CV = np.reshape(LLR.data.suc[...,np.squeeze(indCV)],(dimx,lenD*dimD));
  
-
     if (LLR.gam != 1):
+
         if len(LLR.data_prev.ana.shape)==1:
-            dimx_prev = 1; dimD_prev =1; #lenC = LLR.data.ana.shape
+
+            dimx_prev = 1
+            dimD_prev =1; #lenC = LLR.data.ana.shape
+
         elif len(LLR.data_prev.ana.shape)==2:
-            dimD_prev =1; dimx_prev,_ = LLR.data_prev.ana.shape
+
+            dimD_prev =1
+            dimx_prev,_ = LLR.data_prev.ana.shape
+
         else:
-            dimx_prev,dimD_prev,_ = LLR.data_prev.ana.shape;
+
+            dimx_prev,dimD_prev,_ = LLR.data_prev.ana.shape
+
         indCV_prev = (indCV) & (LLR.data_prev.time==LLR.data_prev.time)
         lenD_prev = np.shape(LLR.data_prev.ana[...,indCV_prev])[-1]
 
         analogs_CV_prev = np.reshape(LLR.data_prev.ana[...,indCV_prev],(dimx_prev, lenD_prev*dimD_prev ));
+
         successors_CV_prev =np.reshape(LLR.data_prev.suc[...,indCV_prev],(dimx_prev, lenD_prev*dimD_prev ));     
+
         analogs = np.concatenate((analogs_CV,analogs_CV_prev),axis=1) ; successors = np.concatenate((successors_CV,successors_CV_prev),axis=1);
+
     else:
         analogs = analogs_CV; successors = successors_CV;
 
     #LLR.k_m = np.size(analogs,1)/np.size(analogs_CV,1)*LLR.LLR.k_m;
     #%% LLR estimating
     # #[ind_knn,dist_knn]=knnsearch(analogs,x,'k',LLR.k_m);
-    LLR.k_m = min(LLR.k_m,np.size(analogs,1)); LLR.k_Q = min(LLR.k_m, LLR.k_Q);
-    weights = np.ones((N,LLR.k_m))/LLR.k_m; # rectangular kernel for default
+    LLR.k_m = min(LLR.k_m,np.size(analogs,1))
+    LLR.k_Q = min(LLR.k_m, LLR.k_Q)
+    weights = np.ones((N,LLR.k_m))/LLR.k_m # rectangular kernel for default
  
     for i in range(N):
-      # search k-nearest neighbors
+        # search k-nearest neighbors
         X_i = np.tile(x[:,i],(np.size(analogs,1),1)).T;
         dist = np.sqrt(np.sum((X_i- analogs)**2,0));
         ind_dist = np.argsort(dist); 

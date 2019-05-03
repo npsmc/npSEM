@@ -4,23 +4,18 @@
 # In[187]:
 
 
-get_ipython().run_line_magic('matplotlib', 'inline')
-get_ipython().run_line_magic('config', "InlineBackend.figure_format = 'retina'")
-
-
 #%% Modules importation
 
 import numpy as np 
-from numpy.linalg import cholesky 
+from   numpy.linalg import cholesky 
 import matplotlib.pyplot as plt 
-from tqdm import tqdm_notebook as tqdm 
+from   tqdm import tqdm_notebook as tqdm 
 
-import models.l63f as mdl_l63
-from models.L63 import l63_jac
-import models.l96f as mdl_l96
-from methods.generate_data import generate_data
-from methods.llr_forecasting_CV import LLRClass, Data, Est
-from methods.model_forecasting import m_true
+import npsem.models.l63f as mdl_l63
+from   npsem.models.l63 import l63_jac
+import npsem.models.l96f as mdl_l96
+from   npsem.methods.generate_data import generate_data
+from   npsem.methods.model_forecasting import m_true
 
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.model_selection import train_test_split
