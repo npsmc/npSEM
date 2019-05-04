@@ -7,3 +7,5 @@ build/
 sinus3_data.png
 .idea/
 *.swp
+*.o
+*.mod
