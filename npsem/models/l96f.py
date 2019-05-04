@@ -1,13 +1,12 @@
-#!/usr/bin/python
-"""
-Lorenz-96 model. Wrapper to fortran L96 code
-"""
 
 import npsem.models.l96_for as tfor
 import numpy as np
 
 
 class M:
+    """
+    Lorenz-96 model. Wrapper to fortran L96 code
+    """
 
     def __init__(self,dtcy=0.05,force=8,nx=40):
         "Lorenz-96 parameters"
@@ -21,10 +20,10 @@ class M:
         "Time integration of Lorenz-96 (single and ensemble)"
         if xold.ndim==1:
             #single integration
-            x=tfor.l96.tinteg1scl(self.kt,xold,self.xpar,self.dt)
+            x = tfor.l96.tinteg1scl(self.kt,xold,self.xpar,self.dt)
         else:
             #ensemble integration
-            x=xold*0
+            x = xold*0
             for i in range(np.shape(xold)[1]):
                  x[:,i]=tfor.l96.tinteg1scl(self.kt,xold[:,i],self.xpar,self.dt)
         return x
