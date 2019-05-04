@@ -16,7 +16,7 @@ l63_model = Extension(name="npsem.models.l63_for",
                       sources = [os.path.join("npsem","models","l63_for.f90")])
 l96_model = Extension(name="npsem.models.l96_for", 
                       sources = [os.path.join("npsem","models","l96_for.f90")],
-                      f2py_options=['only:', 'tinteg1scl emtinteg1scl', ':'])
+                      f2py_options=['only:', 'tinteg1scl', 'emtinteg1scl', ':'])
 
 MAJOR = 0
 MINOR = 1
