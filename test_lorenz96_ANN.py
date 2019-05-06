@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-
-# In[187]:
-
-
-#%% Modules importation
-
+# %% Modules importation
 import numpy as np 
 from   numpy.linalg import cholesky 
 import matplotlib.pyplot as plt 
@@ -14,6 +9,7 @@ from   tqdm import tqdm_notebook as tqdm
 import npsem.models.l63f as mdl_l63
 from   npsem.models.l63 import l63_jac
 import npsem.models.l96f as mdl_l96
+import npsem.models.l96_for as tfor
 from   npsem.methods.generate_data import generate_data
 from   npsem.methods.model_forecasting import m_true
 
@@ -29,7 +25,7 @@ from sklearn import preprocessing
 
 import time
 
-#%%
+# %%
 def LLR(X_train,X_test,n_neighbors=300,w_lambda=1): 
     neigh = NearestNeighbors(n_neighbors=n_neighbors) 
     neigh.fit(X_train) 
@@ -88,12 +84,8 @@ def compare_LLR_ANN(X_train, Y_train, X_test, Y_test,llr_params_,ann_params_):
     rmse_llr_ridge = np.sqrt(np.mean((y_test-y_llr_ridge)**2))
     return rmse_ann, rmse_llr, rmse_llr_ridge, ann_time, llr_time, ridge_time, y_ann, y_llr, y_llr_ridge
 
-   
-#%%
-plt.plot(y_test[1:200,1],y_llr[1:200,1],'.')
-plt.plot(y_test[1:200,1],y_gb[1:200,1],'.')
-plt.plot([-10,15],[-10,15])
-#%% GENERATE SIMULATED DATA (LORENZ-96 MODEL)
+
+# %% GENERATE SIMULATED DATA (LORENZ-96 MODEL)
 nx = 10 # dimension of the state
 dt_int = 0.01 # fixed integration time
 dt_model = 8
@@ -123,7 +115,7 @@ for nx in [10,15,20,25,30,35,40,45,50]:
     #H = H[(0,2),:] #  first and third variables are observed
     force = 8.
     fmdl = mdl_l96.M(dtcy=0.05,force=force,nx=nx)
-    mx = lambda x: fmdl.integ(x) # fortran version (fast)
+    mx = lambda x: fmdl.integrate(x) # fortran version (fast)
     # Setting covariances
     Q_true = np.eye(nx) *sig2_Q # model covariance
     R_true = np.eye(nx) *sig2_R # observation covariance
@@ -191,7 +183,18 @@ for nx in [10,15,20,25,30,35,40,45,50]:
     print("GB mean score:  ", np.round(np.mean(rmse_gb),2), "(" , np.round(np.std(rmse_gb),2), ")" )
     print("LLR mean score:  ", np.round(np.mean(rmse_llr),2), "(" , np.round(np.std(rmse_llr),2), ")" )
 
-#%% Forecasting errors
+# %%
+import npsem.models.l96_for as tfor
+
+# %%
+
+# %%
+
+# %%
+plt.plot(y_test[1:200,1],y_llr[1:200,1],'.')
+plt.plot(y_test[1:200,1],y_gb[1:200,1],'.')
+plt.plot([-10,15],[-10,15])
+# %% Forecasting errors
 x = [10,15,20,25,30,35,40,45,50]
 y_gb, y_gb_sd, y_llr, y_llr_sd = np.zeros(len(x)), np.zeros(len(x)), np.zeros(len(x)), np.zeros(len(x))
 for i in range(len(x)):
@@ -212,7 +215,7 @@ plt.grid()
 plt.legend()
 #plt.savefig("L96_forecasting_error_chosen_params.png",format="png")
 
-#%% Computation time
+# %% Computation time
 plt.figure()
 plt.plot(x,np.mean(np.array(gb_tps).reshape((10,len(x))),axis=0),label="GB")
 plt.plot(x,np.mean(np.array(llr_tps).reshape((10,len(x))),axis=0),label="LLR")
