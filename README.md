@@ -5,7 +5,7 @@
 ## Installation
 
 ```bash
-pip install git+https://github.com/pnavaro/npsem.git
+pip install git+https://github.com/npsmc/npsem.git
 ```
 
 ## Description
