@@ -98,7 +98,7 @@ h = lambda x: H.dot(x)  # observation model
 jacH = lambda x: H # Jacobian matrix  of the observation model(for EKS_EM only)
 
 
-B = 10
+B = 20
 grid_search=False
 
 # generate data
