@@ -1,6 +1,8 @@
 # npSEM (non-parametric stochastic estimation method)
 
-[![Build Status](https://travis-ci.org/pnavaro/npSEM.svg?branch=master)](https://travis-ci.org/pnavaro/npSEM)
+[![Build Status](https://travis-ci.org/pnavaro/npSEM.svg?branch=master)](https://travis-ci.org/npsmc/npSEM)
+
+**NOTE: This package is a draft and is not fully tested. Don't use it!**
 
 ## Installation
 
